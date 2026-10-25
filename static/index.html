@@ -4,332 +4,706 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ClauseGuard</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M16 2 4 7v8c0 7.5 5 13 12 15 7-2 12-7.5 12-15V7z' fill='%230069ff'/><path d='m10 16 4 4 8-8' stroke='white' stroke-width='3' fill='none'/></svg>">
+<meta name="description" content="Read the fine print before you sign. AI contract review for Indian rental agreements, offer letters and freelance contracts.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M16 2 4 7v8c0 7.5 5 13 12 15 7-2 12-7.5 12-15V7z' fill='%234354e8'/><path d='m10 16 4 4 8-8' stroke='white' stroke-width='3' fill='none'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#f6f7fb; --panel:#fff; --ink:#151a2d; --muted:#5f6680; --line:#e3e6ef;
-  --accent:#0069ff; --accent-ink:#fff; --high:#d92d20; --high-bg:#fdecea; --med:#b54708; --med-bg:#fef4e6;
-  --low:#3e7b27; --low-bg:#edf7e7; --chip:#eef2ff; --code:#f1f3f8; --shadow:0 1px 2px rgba(16,24,40,.06),0 4px 16px rgba(16,24,40,.05);
+  --bg:#f5f6fb; --bg2:#eceefa; --panel:#ffffff; --ink:#111527; --ink2:#3a4060; --muted:#6a7090; --line:#e2e5f0; --line2:#d3d7e8;
+  --brand:#4354e8; --brand2:#2f3fc9; --brand-soft:#eceefe; --brand-ink:#fff; --saffron:#f08a24;
+  --high:#d8342a; --high-soft:#fdeceb; --med:#b86a00; --med-soft:#fff3e0; --low:#2f8a3e; --low-soft:#e9f6ec;
+  --ok:#1f8a4c; --warn:#b86a00; --code:#f1f3f9;
+  --shadow:0 1px 2px rgba(17,21,39,.05),0 8px 24px rgba(17,21,39,.06); --shadow-lg:0 20px 50px rgba(17,21,39,.12);
+  --r:14px; --r-sm:10px;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --bg:#0e1220; --panel:#161b2e; --ink:#e8ebf5; --muted:#9aa1b9; --line:#262d45;
-  --accent:#4d8dff; --accent-ink:#fff; --high:#ff6b5e; --high-bg:#3a1714; --med:#f5a524; --med-bg:#35260f;
-  --low:#7cc45a; --low-bg:#1a2c14; --chip:#1f2745; --code:#1d2338; --shadow:none;
+  --bg:#0c0f1c; --bg2:#121730; --panel:#151a2e; --ink:#eef0fa; --ink2:#c3c8e0; --muted:#8f96b5; --line:#252c48; --line2:#323a5c;
+  --brand:#7c8bff; --brand2:#98a4ff; --brand-soft:#1f2650; --brand-ink:#0c0f1c; --saffron:#ffa94d;
+  --high:#ff7066; --high-soft:#3a1816; --med:#ffb547; --med-soft:#3a2810; --low:#6fd283; --low-soft:#16301c;
+  --ok:#6fd283; --warn:#ffb547; --code:#1c2240; --shadow:none; --shadow-lg:0 20px 50px rgba(0,0,0,.5);
 }}
 :root[data-theme="dark"]{
-  --bg:#0e1220; --panel:#161b2e; --ink:#e8ebf5; --muted:#9aa1b9; --line:#262d45;
-  --accent:#4d8dff; --accent-ink:#fff; --high:#ff6b5e; --high-bg:#3a1714; --med:#f5a524; --med-bg:#35260f;
-  --low:#7cc45a; --low-bg:#1a2c14; --chip:#1f2745; --code:#1d2338; --shadow:none;
+  --bg:#0c0f1c; --bg2:#121730; --panel:#151a2e; --ink:#eef0fa; --ink2:#c3c8e0; --muted:#8f96b5; --line:#252c48; --line2:#323a5c;
+  --brand:#7c8bff; --brand2:#98a4ff; --brand-soft:#1f2650; --brand-ink:#0c0f1c; --saffron:#ffa94d;
+  --high:#ff7066; --high-soft:#3a1816; --med:#ffb547; --med-soft:#3a2810; --low:#6fd283; --low-soft:#16301c;
+  --ok:#6fd283; --warn:#ffb547; --code:#1c2240; --shadow:none; --shadow-lg:0 20px 50px rgba(0,0,0,.5);
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-button,textarea,input{font:inherit;color:inherit}
-header{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:5}
-.logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:18px}
-.badge{font-size:12px;color:var(--muted);border:1px solid var(--line);padding:2px 8px;border-radius:99px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:50vw}
-.spacer{flex:1}
-.btn{border:1px solid var(--line);background:var(--panel);padding:8px 14px;border-radius:8px;cursor:pointer}
-.btn:hover{border-color:var(--accent)}
-.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
-.btn:disabled{opacity:.55;cursor:wait}
-main{max-width:1280px;margin:0 auto;padding:20px 16px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
-.intro{max-width:820px;margin:24px auto}
-.intro h1{font-size:28px;margin:0 0 6px}
-.intro p.lead{color:var(--muted);margin:0 0 18px}
-.input-card{padding:16px}
-textarea{width:100%;min-height:300px;border:1px solid var(--line);border-radius:8px;padding:12px;background:var(--bg);resize:vertical}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
-.muted{color:var(--muted)}
-.small{font-size:13px}
-.pipeline{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
-.pipeline div{padding:12px;font-size:13px}
-.pipeline b{display:block;font-size:14px;margin-bottom:2px}
-.grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:16px;align-items:start}
-.sticky{position:sticky;top:76px}
-.summary{padding:18px;display:flex;gap:18px;align-items:center}
-.gauge{flex:none;width:96px;height:96px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:26px}
-.gauge span{display:block;font-size:11px;font-weight:500;color:var(--muted);text-align:center}
-.terms{display:flex;flex-wrap:wrap;gap:8px;padding:0 18px 16px}
-.term{background:var(--chip);border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer}
-.term b{display:block;font-size:11px;color:var(--muted);font-weight:500}
-.tabs{display:flex;gap:4px;margin:16px 0 10px}
-.tab{padding:6px 12px;border-radius:8px;border:1px solid transparent;cursor:pointer;background:none}
-.tab.on{background:var(--panel);border-color:var(--line);font-weight:600}
-.finding{padding:14px 16px;margin-bottom:10px;border-left:4px solid var(--line);cursor:pointer}
-.finding.high{border-left-color:var(--high)} .finding.medium{border-left-color:var(--med)} .finding.low{border-left-color:var(--low)}
-.finding h3{margin:0;font-size:15px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.pill{font-size:11px;font-weight:700;text-transform:uppercase;padding:2px 8px;border-radius:99px;letter-spacing:.03em}
-.pill.high{background:var(--high-bg);color:var(--high)} .pill.medium{background:var(--med-bg);color:var(--med)} .pill.low{background:var(--low-bg);color:var(--low)}
-.cid{font:12px ui-monospace,Consolas,monospace;background:var(--chip);padding:1px 6px;border-radius:5px;cursor:pointer;color:var(--accent);border:none}
-.finding p{margin:6px 0 0}
-blockquote{margin:8px 0 0;padding:6px 10px;border-left:3px solid var(--line);color:var(--muted);font-size:13px}
-.verify{font-size:12px} .verify.ok{color:var(--low)} .verify.no{color:var(--med)}
-.revision{margin-top:8px;background:var(--code);border-radius:8px;padding:8px 10px;font-size:13px}
-.revision b{font-size:12px;color:var(--muted)}
-.clause{padding:12px 14px;border-bottom:1px solid var(--line);white-space:pre-wrap;scroll-margin-top:90px}
-.clause:last-child{border-bottom:none}
-.clause.high{background:var(--high-bg)} .clause.medium{background:var(--med-bg)}
-.clause.flash{outline:2px solid var(--accent);outline-offset:-2px}
-.chat{display:flex;flex-direction:column;height:calc(100vh - 100px);min-height:480px}
-.chat-head{padding:12px 16px;border-bottom:1px solid var(--line)}
-.msgs{flex:1;overflow:auto;padding:14px 16px;display:flex;flex-direction:column;gap:12px}
-.msg{max-width:92%;padding:10px 12px;border-radius:12px}
-.msg.user{align-self:flex-end;background:var(--accent);color:var(--accent-ink)}
-.msg.bot{align-self:flex-start;background:var(--bg);border:1px solid var(--line)}
-.msg.bot p{margin:0 0 6px} .msg.bot ul{margin:4px 0;padding-left:18px}
-.msg code{background:var(--code);padding:0 4px;border-radius:4px}
-details.trace{margin-top:8px;font-size:12px;color:var(--muted)}
-details.trace li{margin:4px 0}
-.suggest{display:flex;gap:6px;flex-wrap:wrap;padding:0 16px 10px}
-.suggest button{font-size:12px;padding:4px 10px;border-radius:99px}
-form.ask{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--line)}
-form.ask input{flex:1;min-width:0;border:1px solid var(--line);border-radius:8px;padding:9px 12px;background:var(--bg)}
-.notice{padding:10px 14px;border-radius:8px;background:var(--med-bg);color:var(--med);margin-bottom:12px;font-size:13px}
-.spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:s 1s linear infinite;vertical-align:-2px}
-@keyframes s{to{transform:rotate(360deg)}}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 Inter,system-ui,-apple-system,"Segoe UI","Nirmala UI","Noto Sans",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+button,textarea,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:6px}
 .hidden{display:none!important}
-footer{color:var(--muted);font-size:12px;text-align:center;padding:24px 16px}
-@media (max-width:900px){
-  .grid{grid-template-columns:1fr} .sticky{position:static} .chat{height:70vh}
-  .pipeline{grid-template-columns:1fr 1fr}
+.muted{color:var(--muted)} .small{font-size:13px} .tiny{font-size:12px}
+
+/* header */
+header{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--panel) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.bar{max-width:1320px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:10px 16px}
+.logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:18px;letter-spacing:-.02em;color:var(--ink);text-decoration:none;cursor:pointer;background:none;border:none;padding:0}
+.flag{font-size:11px;font-weight:600;color:var(--saffron);border:1px solid color-mix(in srgb,var(--saffron) 40%,transparent);padding:1px 7px;border-radius:99px}
+.spacer{flex:1}
+.status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);border:1px solid var(--line);padding:4px 10px;border-radius:99px;white-space:nowrap;max-width:240px;overflow:hidden;text-overflow:ellipsis}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex:none} .dot.on{background:var(--ok);box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 25%,transparent)} .dot.off{background:var(--high)}
+.iconbtn{display:inline-grid;place-items:center;width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--panel)}
+.iconbtn:hover{border-color:var(--line2)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line);background:var(--panel);padding:9px 14px;border-radius:10px;font-weight:500;white-space:nowrap;transition:border-color .15s,background .15s,transform .05s}
+.btn:hover{border-color:var(--line2);background:var(--bg)}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:var(--brand-ink);font-weight:600}
+.btn.primary:hover{background:var(--brand2);border-color:var(--brand2)}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.sm{padding:6px 10px;font-size:13px;border-radius:8px}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+select.sel{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:7px 10px;font-size:13px}
+
+main{max-width:1320px;margin:0 auto;padding:0 16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+
+/* landing */
+.hero{display:grid;grid-template-columns:1fr 1.05fr;gap:40px;align-items:center;padding:48px 0 28px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--brand);background:var(--brand-soft);padding:5px 12px;border-radius:99px}
+.hero h1{font-size:clamp(32px,4.6vw,50px);line-height:1.06;letter-spacing:-.035em;margin:16px 0 14px;font-weight:800}
+.hero h1 em{font-style:normal;background:linear-gradient(90deg,var(--brand),var(--saffron));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.lead{font-size:17px;color:var(--ink2);margin:0 0 22px;max-width:540px}
+.trust{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:540px}
+.trust div{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--ink2)}
+.trust .ic{flex:none;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--panel);border:1px solid var(--line);font-size:15px}
+.trust b{display:block;color:var(--ink);font-size:14px}
+
+.inputcard{padding:18px;box-shadow:var(--shadow-lg)}
+.drop{position:relative;border:1.5px dashed var(--line2);border-radius:var(--r-sm);background:var(--bg);transition:border-color .15s,background .15s}
+.drop.over{border-color:var(--brand);background:var(--brand-soft)}
+.drop textarea{display:block;width:100%;min-height:240px;border:none;background:transparent;padding:14px 14px 40px;resize:vertical;outline:none;font-size:14px;line-height:1.6}
+.drop .hint{position:absolute;left:14px;right:14px;bottom:10px;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);pointer-events:none}
+.drop .hint label{pointer-events:auto;color:var(--brand);font-weight:600;cursor:pointer}
+.actions{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.actions .btn.primary{flex:1;padding:12px 16px;font-size:15px}
+.err{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--high-soft);color:var(--high);font-size:13px}
+
+.section-title{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:30px 0 12px}
+.section-title h2{font-size:18px;margin:0;letter-spacing:-.01em}
+.samples{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.sample{text-align:left;padding:16px;border-radius:var(--r);border:1px solid var(--line);background:var(--panel);box-shadow:var(--shadow);transition:transform .15s,border-color .15s}
+.sample:hover{transform:translateY(-2px);border-color:var(--brand)}
+.sample .top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.sample .emoji{font-size:22px;width:42px;height:42px;display:grid;place-items:center;border-radius:12px;background:var(--bg2)}
+.sample b{display:block;font-size:15px}
+.sample .city{font-size:12px;color:var(--muted)}
+.sample p{margin:0 0 10px;font-size:13px;color:var(--ink2)}
+.sample .go{font-size:13px;font-weight:600;color:var(--brand)}
+.steps4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:0 0 36px}
+.steps4 .card{padding:16px}
+.steps4 .n{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand);font-weight:700;font-size:13px;margin-bottom:8px}
+.steps4 b{display:block;margin-bottom:2px}
+.steps4 p{margin:0;font-size:13px;color:var(--muted)}
+
+/* progress */
+.progress{max-width:560px;margin:60px auto;padding:28px}
+.progress h2{margin:0 0 4px;font-size:20px}
+.plist{list-style:none;padding:0;margin:22px 0 0;display:grid;gap:14px}
+.plist li{display:flex;gap:12px;align-items:center;color:var(--muted)}
+.plist .st{width:26px;height:26px;border-radius:50%;border:2px solid var(--line2);display:grid;place-items:center;flex:none;font-size:13px}
+.plist li.active{color:var(--ink);font-weight:600} .plist li.active .st{border-color:var(--brand);border-right-color:transparent;animation:spin 1s linear infinite}
+.plist li.done{color:var(--ink2)} .plist li.done .st{background:var(--ok);border-color:var(--ok);color:#fff}
+.bar-track{height:6px;border-radius:99px;background:var(--bg2);overflow:hidden;margin-top:24px}
+.bar-fill{height:100%;width:0;background:linear-gradient(90deg,var(--brand),var(--saffron));transition:width .6s ease}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* results */
+.results{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:20px;align-items:start;padding:22px 0 40px}
+.verdict{padding:20px;display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center}
+.ring{position:relative;width:120px;height:120px}
+.ring svg{transform:rotate(-90deg)}
+.ring .arc{animation:ringIn 1.1s cubic-bezier(.2,.8,.2,1)}
+@keyframes ringIn{from{stroke-dashoffset:var(--c)}}
+@media (prefers-reduced-motion:reduce){.ring .arc{animation:none}}
+.ring .val{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.ring .val b{font-size:32px;font-weight:800;letter-spacing:-.03em;line-height:1}
+.ring .val span{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+.vlabel{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:13px;padding:4px 10px;border-radius:99px}
+.vlabel.high{background:var(--high-soft);color:var(--high)} .vlabel.medium{background:var(--med-soft);color:var(--med)} .vlabel.low{background:var(--low-soft);color:var(--low)}
+.verdict h2{margin:8px 0 2px;font-size:20px;letter-spacing:-.01em}
+.verdict .parties{font-size:13px;color:var(--muted)}
+.verdict p{margin:8px 0 12px;color:var(--ink2)}
+.stats{display:flex;flex-wrap:wrap;gap:8px}
+.stat{display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:5px 10px;border-radius:99px;background:var(--bg);border:1px solid var(--line)}
+.stat i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.terms{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-top:14px}
+.term{text-align:left;padding:12px 14px;border-radius:var(--r-sm);border:1px solid var(--line);background:var(--panel)}
+.term[data-cid]:hover{border-color:var(--brand)}
+.term .k{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:6px}
+.term .v{font-weight:600;font-size:14px;margin-top:2px}
+
+.toolbar{display:flex;align-items:center;gap:8px;margin:20px 0 12px;flex-wrap:wrap}
+.tabs{display:flex;gap:4px;background:var(--bg2);padding:4px;border-radius:12px}
+.tab{border:none;background:none;padding:7px 14px;border-radius:9px;font-weight:500;color:var(--muted);font-size:14px}
+.tab.on{background:var(--panel);color:var(--ink);box-shadow:var(--shadow);font-weight:600}
+.tab .ct{font-size:12px;margin-left:4px;color:var(--muted)}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.chip{border:1px solid var(--line);background:var(--panel);padding:5px 12px;border-radius:99px;font-size:13px;font-weight:500}
+.chip.on{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+
+.finding{padding:16px 18px;margin-bottom:12px;position:relative;overflow:hidden}
+.finding::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--line2)}
+.finding.high::before{background:var(--high)} .finding.medium::before{background:var(--med)} .finding.low::before{background:var(--low)}
+.fhead{display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.fhead h3{margin:0;font-size:16px;flex:1;min-width:200px;letter-spacing:-.005em}
+.pill{font-size:11px;font-weight:700;text-transform:uppercase;padding:3px 9px;border-radius:99px;letter-spacing:.04em;flex:none}
+.pill.high{background:var(--high-soft);color:var(--high)} .pill.medium{background:var(--med-soft);color:var(--med)} .pill.low{background:var(--low-soft);color:var(--low)}
+.cat{font-size:12px;color:var(--muted);margin-top:2px}
+.cid{font:600 12px ui-monospace,"Cascadia Mono",Consolas,monospace;background:var(--brand-soft);color:var(--brand);padding:2px 7px;border-radius:6px;border:none;vertical-align:1px}
+.cid:hover{filter:brightness(.95)}
+.finding p.pe{margin:10px 0 0;color:var(--ink2)}
+.quote{margin:12px 0 0;padding:10px 12px;border-radius:var(--r-sm);background:var(--bg);border:1px solid var(--line);font-size:13px;color:var(--ink2)}
+.quote q{font-style:italic}
+.badge{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;margin-top:6px}
+.badge.ok{color:var(--ok)} .badge.no{color:var(--warn)}
+.ask-for{margin-top:12px;border-radius:var(--r-sm);background:var(--low-soft);padding:10px 12px;font-size:14px;position:relative}
+.ask-for .lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--low);margin-bottom:3px;display:flex;justify-content:space-between;align-items:center}
+.ask-for .lbl button{font-size:12px;text-transform:none;letter-spacing:0;border:none;background:none;color:var(--low);font-weight:600;padding:0}
+.factions{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+
+.doc .clause{padding:14px 16px 14px 18px;border-bottom:1px solid var(--line);white-space:pre-wrap;scroll-margin-top:90px;position:relative;font-size:14px}
+.doc .clause:last-child{border-bottom:none}
+.doc .clause.high{background:color-mix(in srgb,var(--high-soft) 70%,transparent)} .doc .clause.medium{background:color-mix(in srgb,var(--med-soft) 70%,transparent)}
+.doc .clause.high::before,.doc .clause.medium::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px}
+.doc .clause.high::before{background:var(--high)} .doc .clause.medium::before{background:var(--med)}
+.doc .clause.flash{animation:flash 1.6s ease}
+@keyframes flash{0%,40%{box-shadow:inset 0 0 0 2px var(--brand)}100%{box-shadow:inset 0 0 0 2px transparent}}
+.clause .meta{display:flex;gap:8px;align-items:center;margin-bottom:4px;white-space:normal}
+
+.prep{padding:18px 20px}
+.prep h3{margin:0 0 10px;font-size:16px}
+.check{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px dashed var(--line)}
+.check:last-child{border-bottom:none}
+.check input{margin-top:4px;accent-color:var(--brand);width:16px;height:16px;flex:none}
+.check input:checked + span{color:var(--muted);text-decoration:line-through}
+.msgbox{width:100%;min-height:220px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--bg);padding:12px;font-size:14px;line-height:1.55;resize:vertical}
+
+/* chat */
+.chat{position:sticky;top:72px;display:flex;flex-direction:column;height:calc(100vh - 92px);min-height:520px;overflow:hidden}
+.chat-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.avatar{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--brand);flex:none}
+.chat-head b{display:block;font-size:15px}
+.msgs{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:14px;background:var(--bg)}
+.msg{max-width:94%;padding:11px 14px;border-radius:14px;font-size:14px;word-wrap:break-word}
+.msg.user{align-self:flex-end;background:var(--brand);color:var(--brand-ink);border-bottom-right-radius:4px}
+.msg.bot{align-self:flex-start;background:var(--panel);border:1px solid var(--line);border-bottom-left-radius:4px}
+.msg.bot p{margin:0 0 8px} .msg.bot p:last-child{margin-bottom:0}
+.msg.bot h4{margin:10px 0 6px;font-size:14px}
+.msg.bot ul,.msg.bot ol{margin:4px 0 8px;padding-left:20px} .msg.bot li{margin:2px 0}
+.msg code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:13px}
+.msg table{border-collapse:collapse;width:100%;font-size:13px;margin:6px 0 10px;display:block;overflow-x:auto}
+.msg th,.msg td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+.msg th{background:var(--bg)}
+.typing{display:inline-flex;gap:4px;align-items:center}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:blink 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.2s} .typing i:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+details.trace{margin-top:10px;font-size:12px;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px}
+details.trace summary{cursor:pointer;font-weight:600}
+details.trace ol{padding-left:18px;margin:6px 0 0} details.trace li{margin:4px 0}
+.warnline{margin-top:8px;font-size:12px;color:var(--warn);font-weight:600}
+.suggest{display:flex;gap:6px;flex-wrap:wrap;padding:10px 16px 0;background:var(--panel)}
+.suggest button{font-size:12px;padding:6px 10px;border-radius:99px;border:1px solid var(--line);background:var(--bg);text-align:left}
+.suggest button:hover{border-color:var(--brand);color:var(--brand)}
+form.ask{display:flex;gap:8px;padding:12px 16px 14px;background:var(--panel)}
+form.ask input{flex:1;min-width:0;border:1px solid var(--line);border-radius:12px;padding:11px 14px;background:var(--bg);outline:none}
+form.ask input:focus{border-color:var(--brand)}
+.notice{padding:10px 14px;border-radius:10px;background:var(--med-soft);color:var(--med);margin-bottom:14px;font-size:13px}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--panel);padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;transition:.25s;pointer-events:none;z-index:50}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+footer{border-top:1px solid var(--line);color:var(--muted);font-size:12px}
+footer .in{max-width:1320px;margin:0 auto;padding:18px 16px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+
+@media (max-width:1080px){
+  .results{grid-template-columns:minmax(0,1fr)}
+  .chat{position:relative;top:0;height:72vh}
 }
-@media (max-width:520px){ .summary{flex-direction:column;align-items:flex-start} .badge{display:none} }
+@media (max-width:900px){
+  .hero{grid-template-columns:1fr;gap:24px;padding-top:28px}
+  .samples{grid-template-columns:1fr}
+  .steps4{grid-template-columns:1fr 1fr}
+}
+@media (max-width:560px){
+  .status{display:none}
+  .trust{grid-template-columns:1fr}
+  .steps4{grid-template-columns:1fr}
+  .verdict{grid-template-columns:minmax(0,1fr);justify-items:start}
+  .terms{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .fhead h3,.fhead>div{min-width:0!important}
+  .hero{grid-template-columns:minmax(0,1fr)}
+  body{overflow-x:hidden}
+  .tabs{width:100%;overflow-x:auto} .tab{padding:7px 10px}
+  #newBtn span{display:none}
+}
+@media print{
+  header,.chat,.toolbar .tabs,.filters,.factions,footer,#exportBtns,.ask-for .lbl button{display:none!important}
+  body{background:#fff;color:#000} .card{box-shadow:none;border-color:#ccc}
+  .results{grid-template-columns:1fr;padding:0} .hidden-print{display:none!important}
+  #tab-risks,#tab-prep{display:block!important}
+}
 </style>
 </head>
 <body>
 <header>
-  <div class="logo">
-    <svg width="22" height="22" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 4 7v8c0 7.5 5 13 12 15 7-2 12-7.5 12-15V7z" fill="var(--accent)"/><path d="m10 16 4 4 8-8" stroke="#fff" stroke-width="3" fill="none"/></svg>
-    ClauseGuard
+  <div class="bar">
+    <button class="logo" id="homeBtn" aria-label="ClauseGuard home">
+      <svg width="24" height="24" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 4 7v8c0 7.5 5 13 12 15 7-2 12-7.5 12-15V7z" fill="var(--brand)"/><path d="m10 16 4 4 8-8" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      ClauseGuard
+    </button>
+    <span class="flag">India</span>
+    <div class="spacer"></div>
+    <span class="status" id="status" title="Model status"><span class="dot" id="dot"></span><span id="modelName">connecting…</span></span>
+    <button class="btn sm hidden" id="newBtn" aria-label="New document">＋ <span>New document</span></button>
+    <button class="iconbtn" id="themeBtn" title="Toggle dark mode" aria-label="Toggle dark mode">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
   </div>
-  <span class="badge" id="model">connecting…</span>
-  <div class="spacer"></div>
-  <button class="btn hidden" id="newBtn">New document</button>
-  <button class="btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">◐</button>
 </header>
 
 <main>
-  <section id="inputView" class="intro">
-    <h1>Read the fine print before you sign.</h1>
-    <p class="lead">Paste a rental agreement, offer letter, freelance contract or terms of service. An open-weight model on DigitalOcean flags the risky clauses, explains them in plain English, drafts fairer wording, and answers your questions with citations to the exact clause.</p>
-    <div class="card input-card">
-      <textarea id="docText" placeholder="Paste contract text here…"></textarea>
-      <div class="row">
-        <button class="btn primary" id="analyzeBtn">Analyse contract</button>
-        <label class="btn">Upload .txt / .pdf<input type="file" id="file" accept=".txt,.md,.pdf" hidden></label>
-        <span class="muted small">Or try a sample:</span>
-        <span id="samples" class="row" style="margin:0"></span>
+  <!-- LANDING -->
+  <section id="landing">
+    <div class="hero">
+      <div>
+        <span class="eyebrow">⚖️ AI contract review for India</span>
+        <h1>Know what you're signing, <em>before</em> you sign it.</h1>
+        <p class="lead">Paste a rental agreement, offer letter or freelance contract. ClauseGuard flags the risky clauses, explains them in plain language, checks them against Indian law, and drafts fairer wording you can send back.</p>
+        <div class="trust">
+          <div><span class="ic">₹</span><span><b>Built for India</b>Indian law, ₹ amounts, lakh and crore</span></div>
+          <div><span class="ic">✓</span><span><b>Every quote verified</b>checked word-for-word against your document</span></div>
+          <div><span class="ic">अ</span><span><b>9 languages</b>ask in Hindi, Tamil, Telugu and more</span></div>
+          <div><span class="ic">◆</span><span><b>Open-weight AI</b>Gemma 4 and gpt-oss on DigitalOcean</span></div>
+        </div>
       </div>
-      <div id="status" class="muted small" style="margin-top:10px"></div>
+      <div class="card inputcard">
+        <div class="drop" id="drop">
+          <textarea id="docText" placeholder="Paste your contract text here…&#10;&#10;Or drop a .pdf / .txt file onto this box."></textarea>
+          <div class="hint"><span id="charCount">0 characters</span><label>Upload PDF / TXT<input type="file" id="file" accept=".txt,.md,.pdf" hidden></label></div>
+        </div>
+        <div class="actions">
+          <button class="btn primary" id="analyzeBtn">Analyse contract →</button>
+        </div>
+        <div id="landErr" class="err hidden"></div>
+        <p class="tiny muted" style="margin:10px 0 0">Your document is only used to produce this analysis. It is not stored after the session.</p>
+      </div>
     </div>
-    <div class="pipeline">
-      <div class="card"><b>1 · Segment</b>Splits the document into numbered clauses the agent can cite.</div>
-      <div class="card"><b>2 · Rulebook prior</b>22 red-flag categories based on Indian law give the model a starting point.</div>
-      <div class="card"><b>3 · Open-weight review</b>The model judges each clause and drafts fairer wording.</div>
-      <div class="card"><b>4 · Verify</b>Every quote is checked against the source and every citation against what the agent read.</div>
+
+    <div class="section-title"><h2>Try a sample contract</h2><span class="small muted">Fictional documents with common red flags</span></div>
+    <div class="samples" id="samples"></div>
+
+    <div class="section-title"><h2>How it works</h2></div>
+    <div class="steps4">
+      <div class="card"><div class="n">1</div><b>Split into clauses</b><p>Each clause gets an ID (C1, C2…) so every claim can be traced back to it.</p></div>
+      <div class="card"><div class="n">2</div><b>Indian rulebook</b><p>22 red-flag categories: deposits, lock-ins, bonds, non-competes, arbitration and more.</p></div>
+      <div class="card"><div class="n">3</div><b>Open-weight AI review</b><p>The model judges each clause and suggests fairer wording.</p></div>
+      <div class="card"><div class="n">4</div><b>Verify</b><p>Quotes are checked against your text, and citations against what the agent actually read.</p></div>
     </div>
   </section>
 
-  <section id="resultView" class="hidden">
-    <div class="grid">
+  <!-- PROGRESS -->
+  <section id="progress" class="hidden">
+    <div class="card progress">
+      <h2>Reviewing your contract…</h2>
+      <div class="muted small"><span id="elapsed">0</span>s elapsed · usually 20–40 seconds</div>
+      <ul class="plist" id="plist">
+        <li><span class="st"></span>Splitting into clauses</li>
+        <li><span class="st"></span>Matching the Indian rulebook</li>
+        <li><span class="st"></span>Open-weight model reviewing each clause</li>
+        <li><span class="st"></span>Verifying quotes against your document</li>
+      </ul>
+      <div class="bar-track"><div class="bar-fill" id="pbar"></div></div>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="results" class="hidden">
+    <div class="results">
       <div>
         <div id="degraded" class="notice hidden"></div>
-        <div class="card">
-          <div class="summary">
-            <div class="gauge" id="gauge"></div>
-            <div>
-              <div class="muted small" id="docType"></div>
-              <div id="docSummary"></div>
-              <div class="muted small" id="meta" style="margin-top:6px"></div>
-            </div>
+        <div class="card verdict">
+          <div class="ring" id="ring"></div>
+          <div>
+            <span class="vlabel" id="vlabel"></span>
+            <h2 id="docType"></h2>
+            <div class="parties" id="parties"></div>
+            <p id="docSummary"></p>
+            <div class="stats" id="stats"></div>
           </div>
-          <div class="terms" id="terms"></div>
         </div>
-        <div class="tabs" role="tablist">
-          <button class="tab on" data-tab="risks">Risks <span id="riskCount"></span></button>
-          <button class="tab" data-tab="doc">Document</button>
-          <button class="tab" data-tab="questions">Ask before signing</button>
+        <div class="terms" id="terms"></div>
+
+        <div class="toolbar">
+          <div class="tabs" role="tablist">
+            <button class="tab on" data-tab="risks" role="tab">Risks<span class="ct" id="ctRisks"></span></button>
+            <button class="tab" data-tab="doc" role="tab">Document<span class="ct" id="ctDoc"></span></button>
+            <button class="tab" data-tab="prep" role="tab">Before you sign</button>
+          </div>
+          <div class="spacer"></div>
+          <span id="exportBtns">
+            <button class="btn sm" id="dlBtn" title="Download report as Markdown">⤓ Report</button>
+            <button class="btn sm" id="printBtn" title="Print or save as PDF">⎙ Print</button>
+          </span>
         </div>
-        <div id="tab-risks"></div>
-        <div id="tab-doc" class="card hidden"></div>
-        <div id="tab-questions" class="card hidden" style="padding:14px 18px"></div>
+
+        <div id="tab-risks">
+          <div class="filters" id="filters"></div>
+          <div id="findings"></div>
+        </div>
+        <div id="tab-doc" class="card doc hidden"></div>
+        <div id="tab-prep" class="hidden">
+          <div class="card prep" style="margin-bottom:14px">
+            <h3>Questions to ask before signing</h3>
+            <div id="questions"></div>
+          </div>
+          <div class="card prep">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+              <h3 style="margin:0">Negotiation message</h3>
+              <button class="btn sm primary" id="copyMsg">Copy message</button>
+            </div>
+            <p class="small muted" style="margin:0 0 10px">A ready-to-send WhatsApp or email draft built from the high-risk findings. Edit it before sending.</p>
+            <textarea class="msgbox" id="negMsg"></textarea>
+          </div>
+        </div>
       </div>
-      <div class="sticky">
-        <div class="card chat">
-          <div class="chat-head"><b>Ask the contract</b><div class="muted small">Agent with search, read and rulebook tools. Answers cite clauses.</div></div>
-          <div class="msgs" id="msgs"></div>
-          <div class="suggest" id="suggest"></div>
-          <form class="ask" id="askForm">
-            <input id="q" placeholder="e.g. How much of my deposit will I get back?" autocomplete="off">
-            <button class="btn primary" id="askBtn">Ask</button>
-          </form>
+
+      <aside class="card chat" aria-label="Ask the contract">
+        <div class="chat-head">
+          <span class="avatar"><svg width="18" height="18" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 4 7v8c0 7.5 5 13 12 15 7-2 12-7.5 12-15V7z" fill="#fff"/></svg></span>
+          <div style="flex:1;min-width:0"><b>Ask about this contract</b><span class="tiny muted" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Every answer cites a clause</span></div>
+          <select class="sel" id="lang" aria-label="Answer language" title="Answer language"></select>
         </div>
-      </div>
+        <div class="msgs" id="msgs" aria-live="polite"></div>
+        <div class="suggest" id="suggest"></div>
+        <form class="ask" id="askForm">
+          <input id="q" placeholder="Ask anything about this contract…" autocomplete="off" aria-label="Your question">
+          <button class="btn primary" id="askBtn" aria-label="Send">➤</button>
+        </form>
+      </aside>
     </div>
   </section>
 </main>
-<footer>ClauseGuard gives you information, not legal advice. Powered by open-weight models on DigitalOcean.</footer>
+
+<footer><div class="in">
+  <span>ClauseGuard gives you information, not legal advice. Free legal aid: NALSA helpline <b>15100</b>.</span>
+  <span>Open-weight AI on DigitalOcean · <span id="footModel"></span></span>
+</div></footer>
+<div class="toast" id="toast"></div>
 
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-let state = { doc: null, history: [] };
-
-// theme
-try { const t = localStorage.getItem("cg-theme"); if (t) document.documentElement.dataset.theme = t; } catch {}
-$("#themeBtn").onclick = () => {
-  const dark = matchMedia("(prefers-color-scheme: dark)").matches;
-  const cur = document.documentElement.dataset.theme || (dark ? "dark" : "light");
-  const next = cur === "dark" ? "light" : "dark";
-  document.documentElement.dataset.theme = next;
-  try { localStorage.setItem("cg-theme", next); } catch {}
+const store = { get(k, d) { try { return localStorage.getItem(k) ?? d; } catch { return d; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
+const LANGS = { English: "English", Hindi: "हिन्दी", Tamil: "தமிழ்", Telugu: "తెలుగు", Kannada: "ಕನ್ನಡ", Marathi: "मराठी", Bengali: "বাংলা", Malayalam: "മലയാളം", Gujarati: "ગુજરાતી" };
+const CATS = {
+  renewal_rent_hike: "Renewal & escalation", unilateral_changes: "One-sided changes", arbitration_unilateral: "Arbitration",
+  limitation_of_liability: "Liability cap", indemnification: "Indemnity", lock_in_forfeiture: "Lock-in & termination",
+  fees_penalties: "Fees & penalties", deposit: "Security deposit", essential_services: "Essential services",
+  entry_privacy: "Entry & privacy", maintenance_repairs: "Repairs", stamp_registration: "Stamp duty & registration",
+  personal_restrictions: "Personal restrictions", employment_bond: "Service bond", notice_period: "Notice period",
+  wages_deductions: "Pay & deductions", payment_terms: "Payment terms", ip_assignment: "IP ownership",
+  non_compete: "Non-compete", data_privacy: "Personal data", transfer_relocation: "Transfer", governing_law_venue: "Jurisdiction", other: "Other"
 };
+const SAMPLE_META = {
+  rental_agreement_bengaluru: { emoji: "🏠", title: "Rental agreement", city: "Bengaluru · ₹32,000/month", blurb: "10-month deposit, lock-in forfeiture, owner can cut electricity and water." },
+  job_offer_pune: { emoji: "💼", title: "Job offer letter", city: "Pune · ₹12 LPA", blurb: "₹3 lakh service bond, original certificates retained, 2-year non-compete." },
+  freelance_agreement_mumbai: { emoji: "🎨", title: "Freelance agreement", city: "Mumbai · ₹1,50,000", blurb: "Payment after 90 days, unlimited revisions, IP transferred before you are paid." },
+};
+const state = { doc: null, history: [], filter: "all", lang: store.get("cg-lang", "English") };
+
+/* ---------- theme ---------- */
+const savedTheme = store.get("cg-theme", null);
+if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+$("#themeBtn").onclick = () => {
+  const cur = document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  const next = cur === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = next; store.set("cg-theme", next);
+};
+
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove("show"), 1800); }
+async function copy(text, msg = "Copied") { try { await navigator.clipboard.writeText(text); toast(msg); } catch { toast("Copy failed, so select the text and copy it manually"); } }
 
 async function api(path, opts = {}) {
   const r = await fetch(path, opts);
   const data = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(data.detail ? (typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail)) : `HTTP ${r.status}`);
+  if (!r.ok) throw new Error(typeof data.detail === "string" ? data.detail : data.detail ? JSON.stringify(data.detail) : `Request failed (HTTP ${r.status})`);
   return data;
 }
 
-fetch("/api/health").then(r => r.json()).then(h => {
-  $("#model").textContent = (h.configured ? "● " : "○ not configured · ") + h.model;
-}).catch(() => $("#model").textContent = "offline");
+function show(view) {
+  ["landing", "progress", "results"].forEach(v => $("#" + v).classList.toggle("hidden", v !== view));
+  $("#newBtn").classList.toggle("hidden", view !== "results");
+  window.scrollTo({ top: 0 });
+}
+$("#homeBtn").onclick = () => show("landing");
+$("#newBtn").onclick = () => { $("#docText").value = ""; updateCount(); show("landing"); };
 
+/* ---------- health / languages ---------- */
+api("/api/health").then(h => {
+  $("#dot").className = "dot " + (h.configured ? "on" : "off");
+  $("#modelName").textContent = h.configured ? h.model : "model not configured";
+  $("#footModel").textContent = h.model;
+  fillLangs(h.languages || Object.keys(LANGS));
+}).catch(() => { $("#dot").className = "dot off"; $("#modelName").textContent = "offline"; fillLangs(Object.keys(LANGS)); });
+function fillLangs(list) {
+  $("#lang").innerHTML = list.map(l => `<option value="${esc(l)}">${esc(LANGS[l] || l)}</option>`).join("");
+  $("#lang").value = list.includes(state.lang) ? state.lang : "English";
+  state.lang = $("#lang").value;
+}
+$("#lang").onchange = e => { state.lang = e.target.value; store.set("cg-lang", state.lang); toast(`Answers will be in ${LANGS[state.lang] || state.lang}`); };
+
+/* ---------- landing ---------- */
 api("/api/samples").then(list => {
-  $("#samples").innerHTML = list.map(s => `<button class="btn small" data-s="${esc(s.name)}">${esc(s.name.replace(/_/g, " "))}</button>`).join("");
-  $("#samples").onclick = async e => {
-    const n = e.target.dataset.s; if (!n) return;
-    $("#docText").value = (await api(`/api/samples/${n}`)).text;
-  };
+  $("#samples").innerHTML = list.map(s => {
+    const m = SAMPLE_META[s.name] || { emoji: "📄", title: s.name.replace(/_/g, " "), city: "", blurb: s.title };
+    return `<button class="sample" data-s="${esc(s.name)}"><div class="top"><span class="emoji">${m.emoji}</span><span><b>${esc(m.title)}</b><span class="city">${esc(m.city)}</span></span></div><p>${esc(m.blurb)}</p><span class="go">Analyse this sample →</span></button>`;
+  }).join("");
 });
-
-$("#file").onchange = async e => {
-  const f = e.target.files[0]; if (!f) return;
-  $("#status").textContent = "Reading file…";
-  try {
-    const { text } = await api("/api/extract", { method: "POST", body: f });
-    $("#docText").value = text; $("#status").textContent = `Loaded ${f.name}`;
-  } catch (err) { $("#status").textContent = "Could not read file: " + err.message; }
+$("#samples").onclick = async e => {
+  const b = e.target.closest("[data-s]"); if (!b) return;
+  try { $("#docText").value = (await api(`/api/samples/${b.dataset.s}`)).text; updateCount(); analyse(); }
+  catch (err) { landError(err.message); }
 };
+const updateCount = () => { const n = $("#docText").value.length; $("#charCount").textContent = `${n.toLocaleString("en-IN")} characters`; };
+$("#docText").addEventListener("input", updateCount);
+function landError(msg) { const el = $("#landErr"); el.textContent = msg; el.classList.toggle("hidden", !msg); }
 
-$("#analyzeBtn").onclick = async () => {
+async function loadFile(f) {
+  if (!f) return;
+  landError(""); $("#charCount").textContent = `Reading ${f.name}…`;
+  try { const { text } = await api("/api/extract", { method: "POST", body: f }); $("#docText").value = text; updateCount(); toast(`Loaded ${f.name}`); }
+  catch (err) { landError("Could not read file: " + err.message); updateCount(); }
+}
+$("#file").onchange = e => loadFile(e.target.files[0]);
+const drop = $("#drop");
+["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => loadFile(e.dataTransfer.files[0]));
+
+/* ---------- analyse with progress ---------- */
+$("#analyzeBtn").onclick = analyse;
+async function analyse() {
   const text = $("#docText").value.trim();
-  if (text.length < 50) { $("#status").textContent = "Paste at least a few clauses first."; return; }
-  const btn = $("#analyzeBtn"); btn.disabled = true;
-  const steps = ["Splitting into clauses…", "Checking rulebook patterns…", "Open-weight model reviewing clauses…", "Verifying quotes against the source…"];
-  let i = 0; $("#status").innerHTML = `<span class="spin"></span> ${steps[0]}`;
-  const timer = setInterval(() => { i = Math.min(i + 1, steps.length - 1); $("#status").innerHTML = `<span class="spin"></span> ${steps[i]}`; }, 2500);
+  if (text.length < 50) { landError("Paste at least a few clauses of the contract first."); return; }
+  landError(""); show("progress");
+  const items = [...document.querySelectorAll("#plist li")], t0 = Date.now();
+  const setStep = i => items.forEach((li, j) => li.className = j < i ? "done" : j === i ? "active" : "");
+  items.forEach(li => li.querySelector(".st").textContent = "");
+  setStep(0);
+  const tick = setInterval(() => {
+    const s = (Date.now() - t0) / 1000;
+    $("#elapsed").textContent = Math.floor(s);
+    setStep(s < 1.2 ? 0 : s < 2.8 ? 1 : 2);
+    $("#pbar").style.width = Math.min(92, 8 + s * 2.4) + "%";
+    items.forEach(li => { if (li.className === "done") li.querySelector(".st").textContent = "✓"; });
+  }, 300);
   try {
-    state.doc = await api("/api/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text }) });
-    state.history = [];
-    render();
-  } catch (err) { $("#status").textContent = "Error: " + err.message; }
-  finally { clearInterval(timer); btn.disabled = false; }
+    const doc = await api("/api/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text }) });
+    clearInterval(tick); setStep(4); items.forEach(li => li.querySelector(".st").textContent = "✓"); $("#pbar").style.width = "100%";
+    state.doc = doc; state.history = []; state.filter = "all";
+    setTimeout(() => { render(); show("results"); }, 350);
+  } catch (err) {
+    clearInterval(tick); show("landing"); landError("Analysis failed: " + err.message);
+  }
+}
+
+/* ---------- results ---------- */
+const RANK = { high: 3, medium: 2, low: 1 };
+function verdictOf(score) {
+  return score >= 70 ? ["high", "High risk: negotiate before signing"] : score >= 40 ? ["medium", "Moderate risk: a few clauses need changes"] : ["low", "Low risk: mostly standard terms"];
+}
+function ringSVG(score) {
+  const r = 52, c = 2 * Math.PI * r, col = score >= 70 ? "var(--high)" : score >= 40 ? "var(--med)" : "var(--low)";
+  return `<svg width="120" height="120" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="${r}" fill="none" stroke="var(--bg2)" stroke-width="11"/>
+    <circle class="arc" cx="60" cy="60" r="${r}" fill="none" stroke="${col}" stroke-width="11" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - score / 100)}" style="--c:${c}"/></svg>
+    <div class="val"><div><b>${score}</b><span>risk score</span></div></div>`;
+}
+const clauseTitle = id => (state.doc.clauses.find(c => c.id === id) || {}).title || id;
+
+function render() {
+  const d = state.doc, s = d.summary || {}, f = d.findings;
+  const counts = { high: 0, medium: 0, low: 0 }; f.forEach(x => counts[x.risk]++);
+  const verified = f.filter(x => x.verified).length;
+  const [vk, vtext] = verdictOf(d.risk_score);
+
+  $("#ring").innerHTML = ringSVG(d.risk_score);
+  $("#vlabel").className = "vlabel " + vk; $("#vlabel").textContent = vtext;
+  $("#docType").textContent = s.doc_type || "Contract";
+  $("#parties").textContent = (s.parties || []).join(" · ");
+  $("#docSummary").textContent = s.summary || "";
+  $("#stats").innerHTML = [
+    counts.high && `<span class="stat"><i style="background:var(--high)"></i>${counts.high} high</span>`,
+    counts.medium && `<span class="stat"><i style="background:var(--med)"></i>${counts.medium} medium</span>`,
+    counts.low && `<span class="stat"><i style="background:var(--low)"></i>${counts.low} low</span>`,
+    f.length && `<span class="stat" title="Quotes checked word-for-word against your document">✓ ${verified}/${f.length} quotes verified</span>`,
+    `<span class="stat">${d.clauses.length} clauses · ${d.seconds}s</span>`,
+  ].filter(Boolean).join("");
+  $("#terms").innerHTML = (s.key_terms || []).map(k => `<button class="term" ${k.clause_id ? `data-cid="${esc(k.clause_id)}"` : "disabled"}>
+    <div class="k"><span>${esc(k.name)}</span>${k.clause_id ? `<span class="cid">${esc(k.clause_id)}</span>` : ""}</div><div class="v">${esc(k.value)}</div></button>`).join("");
+  const deg = $("#degraded"); deg.classList.toggle("hidden", !d.degraded);
+  deg.textContent = d.degraded ? "Part of the AI review failed, so some clauses show rulebook-only findings. Run the analysis again for a full review." : "";
+  $("#ctRisks").textContent = f.length; $("#ctDoc").textContent = d.clauses.length;
+
+  renderFilters(counts); renderFindings(); renderDoc(); renderPrep();
+  showTab("risks");
+  initChat();
+}
+
+function renderFilters(counts) {
+  const opts = [["all", `All ${state.doc.findings.length}`], ["high", `High ${counts.high}`], ["medium", `Medium ${counts.medium}`], ["low", `Low ${counts.low}`]].filter(([k]) => k === "all" || counts[k]);
+  $("#filters").innerHTML = opts.map(([k, l]) => `<button class="chip ${state.filter === k ? "on" : ""}" data-f="${k}">${l}</button>`).join("");
+}
+$("#filters").onclick = e => { const b = e.target.closest("[data-f]"); if (!b) return; state.filter = b.dataset.f; document.querySelectorAll("#filters .chip").forEach(c => c.classList.toggle("on", c === b)); renderFindings(); };
+
+function renderFindings() {
+  const list = state.doc.findings.map((f, i) => ({ ...f, i })).filter(f => state.filter === "all" || f.risk === state.filter);
+  $("#findings").innerHTML = list.length ? list.map(f => `
+    <article class="card finding ${f.risk}">
+      <div class="fhead">
+        <span class="pill ${f.risk}">${f.risk}</span>
+        <div style="flex:1;min-width:200px"><h3>${esc(f.title)}</h3><div class="cat">${esc(CATS[f.category] || f.category)} · <button class="cid" data-cid="${esc(f.clause_id)}">${esc(f.clause_id)}</button> ${esc(clauseTitle(f.clause_id))}</div></div>
+      </div>
+      <p class="pe">${esc(f.plain_english)}</p>
+      ${f.evidence ? `<div class="quote"><q>${esc(f.evidence)}</q><div class="badge ${f.verified ? "ok" : "no"}">${f.verified ? "✓ Quote verified in your document" : "⚠ Not found word-for-word, so check the clause"}</div></div>`
+                   : `<div class="badge no">Rulebook match only (no AI review)</div>`}
+      ${f.suggested_revision ? `<div class="ask-for"><div class="lbl">Ask for instead<button data-copy="${f.i}">Copy</button></div>${esc(f.suggested_revision)}</div>` : ""}
+      <div class="factions">
+        <button class="btn sm" data-cid="${esc(f.clause_id)}">View clause</button>
+        <button class="btn sm" data-askabout="${f.i}">Ask about this</button>
+      </div>
+    </article>`).join("") : `<div class="card" style="padding:18px">No findings at this level.</div>`;
+}
+$("#findings").onclick = e => {
+  const c = e.target.closest("[data-copy]"); if (c) return copy(state.doc.findings[+c.dataset.copy].suggested_revision, "Suggested wording copied");
+  const a = e.target.closest("[data-askabout]"); if (a) { const f = state.doc.findings[+a.dataset.askabout]; ask(`Explain [${f.clause_id}] (${f.title}) in simple terms. Is it legal in India, and how should I negotiate it?`); }
 };
 
-$("#newBtn").onclick = () => { $("#resultView").classList.add("hidden"); $("#inputView").classList.remove("hidden"); $("#newBtn").classList.add("hidden"); $("#status").textContent = ""; };
+function renderDoc() {
+  const worst = {}, n = {};
+  state.doc.findings.forEach(f => { n[f.clause_id] = (n[f.clause_id] || 0) + 1; if ((RANK[f.risk] || 0) > (RANK[worst[f.clause_id]] || 0)) worst[f.clause_id] = f.risk; });
+  $("#tab-doc").innerHTML = state.doc.clauses.map(c => `<div class="clause ${worst[c.id] || ""}" id="clause-${c.id}">
+    <div class="meta"><span class="cid">${c.id}</span>${worst[c.id] ? `<span class="pill ${worst[c.id]}">${n[c.id]} issue${n[c.id] > 1 ? "s" : ""}</span>` : ""}</div>${esc(c.text)}</div>`).join("");
+}
+
+function negotiationMessage() {
+  const d = state.doc, s = d.summary || {};
+  const asks = d.findings.filter(f => f.risk === "high" && f.suggested_revision);
+  const pick = (asks.length ? asks : d.findings.filter(f => f.suggested_revision)).slice(0, 7);
+  if (!pick.length) return "No changes to request: the review found no significant issues.";
+  const lines = pick.map((f, i) => `${i + 1}. ${clauseTitle(f.clause_id).replace(/^\d+[.)]\s*/, "")}: ${f.suggested_revision}`);
+  return `Hello,\n\nThank you for sharing the ${(s.doc_type || "agreement").toLowerCase()}. I've gone through it and would like to request a few changes before signing:\n\n${lines.join("\n\n")}\n\nHappy to discuss these over a call. Looking forward to finalising the agreement.\n\nRegards`;
+}
+function renderPrep() {
+  const qs = (state.doc.summary || {}).questions_to_ask || [];
+  $("#questions").innerHTML = qs.length ? qs.map(q => `<label class="check"><input type="checkbox"><span>${esc(q)}</span></label>`).join("") : `<p class="muted small" style="margin:0">No questions generated.</p>`;
+  $("#negMsg").value = negotiationMessage();
+}
+$("#copyMsg").onclick = () => copy($("#negMsg").value, "Negotiation message copied");
 
 document.querySelectorAll(".tab").forEach(t => t.onclick = () => showTab(t.dataset.tab));
 function showTab(name) {
-  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("on", t.dataset.tab === name));
-  ["risks", "doc", "questions"].forEach(n => $("#tab-" + n).classList.toggle("hidden", n !== name));
+  document.querySelectorAll(".tab").forEach(t => { t.classList.toggle("on", t.dataset.tab === name); t.setAttribute("aria-selected", t.dataset.tab === name); });
+  ["risks", "doc", "prep"].forEach(n => $("#tab-" + n).classList.toggle("hidden", n !== name));
 }
-
 function jumpTo(cid) {
   showTab("doc");
   const el = document.getElementById("clause-" + cid); if (!el) return;
   el.scrollIntoView({ behavior: "smooth", block: "center" });
-  el.classList.add("flash"); setTimeout(() => el.classList.remove("flash"), 1600);
+  el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");
 }
-document.addEventListener("click", e => { const c = e.target.closest("[data-cid]"); if (c) { e.stopPropagation(); jumpTo(c.dataset.cid); } });
+document.addEventListener("click", e => { const c = e.target.closest("[data-cid]"); if (c && !c.disabled) { e.preventDefault(); jumpTo(c.dataset.cid); } });
 
-function render() {
+/* ---------- export ---------- */
+$("#printBtn").onclick = () => { showTab("risks"); state.filter = "all"; renderFindings(); setTimeout(() => window.print(), 50); };
+$("#dlBtn").onclick = () => {
   const d = state.doc, s = d.summary || {};
-  $("#inputView").classList.add("hidden"); $("#resultView").classList.remove("hidden"); $("#newBtn").classList.remove("hidden");
-  const sc = d.risk_score, col = sc >= 60 ? "var(--high)" : sc >= 30 ? "var(--med)" : "var(--low)";
-  $("#gauge").style.background = `conic-gradient(${col} ${sc * 3.6}deg, var(--line) 0)`;
-  $("#gauge").innerHTML = `<div style="background:var(--panel);width:76px;height:76px;border-radius:50%;display:grid;place-items:center"><div>${sc}<span>risk</span></div></div>`;
-  $("#docType").textContent = [s.doc_type, (s.parties || []).join(" · ")].filter(Boolean).join(" — ");
-  $("#docSummary").textContent = s.summary || "Summary unavailable.";
-  const counts = { high: 0, medium: 0, low: 0 }; d.findings.forEach(f => counts[f.risk]++);
-  $("#meta").textContent = `${d.clauses.length} clauses · ${counts.high} high · ${counts.medium} medium · ${counts.low} low · ${d.model} · ${d.seconds}s`;
-  $("#terms").innerHTML = (s.key_terms || []).map(k => `<div class="term" ${k.clause_id ? `data-cid="${esc(k.clause_id)}"` : ""}><b>${esc(k.name)}</b>${esc(k.value)}</div>`).join("");
-  $("#riskCount").textContent = `(${d.findings.length})`;
-  const deg = $("#degraded");
-  deg.classList.toggle("hidden", !d.degraded);
-  deg.textContent = d.degraded ? "Some parts of the model review failed, so those clauses show rulebook-only findings. Try again for a full review." : "";
+  const md = [`# ClauseGuard report: ${s.doc_type || "Contract"}`, "", `**Risk score:** ${d.risk_score}/100 · ${d.findings.length} findings · ${d.clauses.length} clauses`, "", s.summary || "", "",
+    "## Key terms", ...(s.key_terms || []).map(k => `- **${k.name}:** ${k.value}${k.clause_id ? ` [${k.clause_id}]` : ""}`), "",
+    "## Risks", ...d.findings.flatMap(f => [`### [${f.risk.toUpperCase()}] ${f.title} (${f.clause_id}: ${clauseTitle(f.clause_id)})`, f.plain_english,
+      f.evidence ? `> "${f.evidence}" ${f.verified ? "(verified)" : "(not verified word-for-word)"}` : "", f.suggested_revision ? `**Ask for instead:** ${f.suggested_revision}` : "", ""]),
+    "## Questions to ask", ...(s.questions_to_ask || []).map(q => `- ${q}`), "", "## Negotiation message", "", negotiationMessage(), "",
+    "_ClauseGuard provides information, not legal advice. Free legal aid: NALSA 15100._"].join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([md], { type: "text/markdown" }));
+  a.download = `clauseguard-${(s.doc_type || "report").toLowerCase().replace(/[^a-z0-9]+/g, "-")}.md`;
+  a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
 
-  const worst = {};
-  const rank = { high: 3, medium: 2, low: 1 };
-  d.findings.forEach(f => { if ((rank[f.risk] || 0) > (rank[worst[f.clause_id]] || 0)) worst[f.clause_id] = f.risk; });
-
-  $("#tab-risks").innerHTML = d.findings.length ? d.findings.map(f => `
-    <div class="card finding ${f.risk}" data-cid="${esc(f.clause_id)}">
-      <h3><span class="pill ${f.risk}">${f.risk}</span>${esc(f.title)} <button class="cid" data-cid="${esc(f.clause_id)}">${esc(f.clause_id)}</button></h3>
-      <p>${esc(f.plain_english)}</p>
-      ${f.evidence ? `<blockquote>“${esc(f.evidence)}”<br><span class="verify ${f.verified ? "ok" : "no"}">${f.verified ? "✓ quote verified in source" : "⚠ quote not found verbatim, so check the clause"}</span></blockquote>` : `<div class="verify no small" style="margin-top:6px">Rulebook match (no model review)</div>`}
-      ${f.suggested_revision ? `<div class="revision"><b>Ask for instead</b><br>${esc(f.suggested_revision)}</div>` : ""}
-    </div>`).join("") : `<div class="card" style="padding:16px">No risky clauses found.</div>`;
-
-  $("#tab-doc").innerHTML = d.clauses.map(c => `<div class="clause ${worst[c.id] || ""}" id="clause-${c.id}"><button class="cid" tabindex="-1">${c.id}</button> ${esc(c.text)}</div>`).join("");
-  $("#tab-questions").innerHTML = (s.questions_to_ask || []).length ? `<ol>${s.questions_to_ask.map(q => `<li>${esc(q)}</li>`).join("")}</ol>` : `<p class="muted">No questions generated.</p>`;
-  showTab("risks");
-
-  $("#msgs").innerHTML = "";
-  addMsg("bot", `I've read all ${d.clauses.length} clauses. Ask me anything about this contract and I'll cite the exact clause.`);
-  const dt = (s.doc_type || "").toLowerCase();
-  const sugg = /rent|lease|tenan|licen/.test(dt) ? ["How much of my deposit will I get back?", "What if I vacate before the lock-in ends?", "Can the owner cut electricity or lock me out?", "Which clause should I negotiate first?"]
-    : /employ|offer|job/.test(dt) ? ["Do I have to pay the bond if I quit early?", "Can they stop me joining a competitor?", "Is the 90-day notice period fair?", "Which clause should I negotiate first?"]
-    : ["When and how will I get paid?", "Who owns my work?", "Can they change the terms after I sign?", "Which clause should I negotiate first?"];
-  $("#suggest").innerHTML = sugg.map(q => `<button class="btn">${esc(q)}</button>`).join("");
-  $("#suggest").onclick = e => { if (e.target.tagName === "BUTTON") { $("#q").value = e.target.textContent; $("#askForm").requestSubmit(); } };
-}
-
+/* ---------- chat ---------- */
 function md(text) {
-  let h = esc(text);
-  h = h.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/`([^`]+)`/g, "<code>$1</code>");
-  h = h.replace(/\[(C\d+)\]/g, '<button class="cid" data-cid="$1">$1</button>');
-  const lines = h.split(/\n/), out = []; let list = false;
-  for (const l of lines) {
-    const m = l.match(/^\s*([-*]|\d+\.)\s+(.*)/);
-    if (m) { if (!list) { out.push("<ul>"); list = true; } out.push(`<li>${m[2]}</li>`); }
-    else { if (list) { out.push("</ul>"); list = false; } if (l.trim()) out.push(`<p>${l.replace(/^#+\s*/, "")}</p>`); }
+  let h = esc(text).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/(^|[^*])\*([^*\n]+)\*/g, "$1<i>$2</i>").replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\[(C\d+)\]/g, '<button class="cid" data-cid="$1">$1</button>');
+  const lines = h.split("\n"), out = []; let list = null, table = null;
+  const closeList = () => { if (list) { out.push(`</${list}>`); list = null; } };
+  const closeTable = () => { if (table) { out.push("<table>" + table.map((r, i) => `<tr>${r.map(c => i === 0 ? `<th>${c}</th>` : `<td>${c}</td>`).join("")}</tr>`).join("") + "</table>"); table = null; } };
+  for (const raw of lines) {
+    const l = raw.trim();
+    if (/^\|.*\|$/.test(l)) {
+      closeList();
+      if (/^\|[\s:|-]+\|$/.test(l)) continue;
+      (table = table || []).push(l.slice(1, -1).split("|").map(c => c.trim()));
+      continue;
+    }
+    closeTable();
+    const ul = l.match(/^[-*•]\s+(.*)/), ol = l.match(/^\d+[.)]\s+(.*)/);
+    if (ul || ol) { const t = ul ? "ul" : "ol"; if (list !== t) { closeList(); out.push(`<${t}>`); list = t; } out.push(`<li>${(ul || ol)[1]}</li>`); continue; }
+    closeList();
+    if (/^#{1,6}\s/.test(l)) out.push(`<h4>${l.replace(/^#+\s*/, "")}</h4>`);
+    else if (/^-{3,}$/.test(l)) continue;
+    else if (l) out.push(`<p>${l}</p>`);
   }
-  if (list) out.push("</ul>");
+  closeList(); closeTable();
   return out.join("");
 }
-
-function addMsg(role, text, extra = "") {
+function addMsg(role, html) {
   const el = document.createElement("div");
-  el.className = "msg " + role;
-  el.innerHTML = role === "user" ? esc(text) : md(text) + extra;
+  el.className = "msg " + role; el.innerHTML = html;
   $("#msgs").appendChild(el); $("#msgs").scrollTop = $("#msgs").scrollHeight;
   return el;
 }
+function suggestionsFor(dt) {
+  dt = (dt || "").toLowerCase();
+  if (/rent|lease|tenan|licen/.test(dt)) return ["How much of my deposit will I get back?", "What if I vacate before the lock-in ends?", "Can the owner cut electricity or lock me out?", "Which clause should I negotiate first?"];
+  if (/employ|offer|job|appoint/.test(dt)) return ["Do I have to pay the bond if I quit early?", "Can they stop me joining a competitor?", "Is the 90-day notice period fair?", "Which clause should I negotiate first?"];
+  return ["When and how will I get paid?", "Who owns my work?", "Can they change the terms after I sign?", "Which clause should I negotiate first?"];
+}
+function initChat() {
+  $("#msgs").innerHTML = "";
+  addMsg("bot", `<p>I've read all <b>${state.doc.clauses.length} clauses</b>. Ask me anything and I'll point you to the exact clause. You can pick an answer language at the top right.</p>`);
+  $("#suggest").innerHTML = suggestionsFor((state.doc.summary || {}).doc_type).map(q => `<button>${esc(q)}</button>`).join("");
+}
+$("#suggest").onclick = e => { if (e.target.tagName === "BUTTON") ask(e.target.textContent); };
+$("#askForm").onsubmit = e => { e.preventDefault(); ask($("#q").value.trim()); };
 
-$("#askForm").onsubmit = async e => {
-  e.preventDefault();
-  const q = $("#q").value.trim(); if (!q || !state.doc) return;
+async function ask(q) {
+  if (!q || !state.doc || $("#askBtn").disabled) return;
+  if (window.matchMedia("(max-width:1080px)").matches) document.querySelector(".chat").scrollIntoView({ behavior: "smooth" });
   $("#q").value = ""; $("#suggest").innerHTML = "";
-  addMsg("user", q);
-  const wait = addMsg("bot", ""); wait.innerHTML = `<span class="spin"></span> <span class="muted small">thinking & reading clauses…</span>`;
+  addMsg("user", esc(q));
+  const wait = addMsg("bot", `<span class="typing"><i></i><i></i><i></i></span> <span class="tiny muted">reading clauses…</span>`);
   $("#askBtn").disabled = true;
   try {
+    const d = state.doc;
     const r = await api("/api/ask", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ doc_id: state.doc.doc_id, question: q, history: state.history,
-        doc: { clauses: state.doc.clauses, findings: state.doc.findings, summary: state.doc.summary || {} } }) });
+      body: JSON.stringify({ doc_id: d.doc_id, question: q, history: state.history, language: state.lang,
+        doc: { clauses: d.clauses, findings: d.findings, summary: d.summary || {} } }) });
     wait.remove();
     const steps = r.trace.filter(t => t.action && t.action !== "final");
-    const trace = steps.length ? `<details class="trace"><summary>Agent trace · ${steps.length} tool call${steps.length > 1 ? "s" : ""}</summary><ol>${
+    const trace = steps.length ? `<details class="trace"><summary>How I found this · ${steps.length} step${steps.length > 1 ? "s" : ""}</summary><ol>${
       steps.map(t => `<li><code>${esc(t.action)}(${esc(JSON.stringify(t.input || {}))})</code>${t.thought ? `<br>${esc(t.thought)}` : ""}</li>`).join("")}</ol></details>` : "";
-    const warn = r.unverified_citations.length ? `<div class="verify no">⚠ Cited without reading: ${r.unverified_citations.join(", ")}</div>` : "";
-    addMsg("bot", r.answer, warn + trace);
+    const warn = r.unverified_citations.length ? `<div class="warnline">⚠ Cited without reading: ${r.unverified_citations.join(", ")}, so double-check these</div>` : "";
+    addMsg("bot", md(r.answer) + warn + trace);
     state.history.push({ role: "user", content: q }, { role: "assistant", content: r.answer });
-  } catch (err) { wait.remove(); addMsg("bot", "Error: " + err.message); }
-  finally { $("#askBtn").disabled = false; }
-};
+  } catch (err) {
+    wait.remove(); addMsg("bot", `<p style="color:var(--high)">Sorry, that failed: ${esc(err.message)}</p>`);
+  } finally { $("#askBtn").disabled = false; $("#q").focus(); }
+}
 </script>
 </body>
 </html>
