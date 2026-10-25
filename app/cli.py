@@ -9,7 +9,7 @@ import json
 import sys
 from pathlib import Path
 
-from .agent import Agent
+from .agent import LANGUAGES, Agent
 from .llm import LLM, LLMError, load_dotenv
 from .scanner import scan
 from .search import BM25
@@ -55,6 +55,7 @@ def main(argv=None):
     p.add_argument("file", type=Path)
     p.add_argument("--ask", help="ask a question about the contract instead of printing the report")
     p.add_argument("--json", action="store_true", help="print JSON")
+    p.add_argument("--lang", default="English", choices=LANGUAGES, help="language for --ask answers")
     args = p.parse_args(argv)
 
     llm = LLM()
@@ -67,7 +68,7 @@ def main(argv=None):
         result = scan(clauses, llm)
         if args.ask:
             doc = {"clauses": clauses, "index": BM25(clauses), **result}
-            ans = Agent(llm, doc).run(args.ask)
+            ans = Agent(llm, doc).run(args.ask, language=args.lang)
             print(json.dumps(ans, indent=2) if args.json else ans["answer"])
         else:
             print(json.dumps({"clauses": clauses, **result}, indent=2) if args.json else report_md(result, clauses))

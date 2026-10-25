@@ -1,4 +1,5 @@
 import io
+import os
 import time
 import uuid
 from collections import OrderedDict
@@ -9,7 +10,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from .agent import Agent
+from .agent import LANGUAGES, Agent
 from .llm import LLM, LLMError, load_dotenv
 from .scanner import scan
 from .search import BM25
@@ -34,11 +35,13 @@ class AskIn(BaseModel):
     doc_id: str
     question: str = Field(min_length=2, max_length=2000)
     history: list = []
+    language: str = "English"
 
 
 @app.get("/api/health")
 def health():
-    return {"ok": True, "model": llm.model, "base_url": llm.base_url, "configured": llm.configured}
+    return {"ok": True, "model": llm.model, "base_url": llm.base_url, "configured": llm.configured,
+            "region": os.getenv("CONTRACT_REGION", "India"), "languages": LANGUAGES}
 
 
 @app.get("/api/samples")
@@ -97,7 +100,7 @@ def ask(inp: AskIn):
         raise HTTPException(404, "Document expired, please analyse it again.")
     DOCS.move_to_end(inp.doc_id)
     try:
-        return Agent(llm, doc).run(inp.question, inp.history)
+        return Agent(llm, doc).run(inp.question, inp.history, inp.language)
     except LLMError as e:
         raise HTTPException(502, f"Model error: {e}")
 

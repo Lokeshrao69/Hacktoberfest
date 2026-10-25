@@ -1,114 +1,178 @@
 [
   {
-    "id": "auto_renewal",
-    "name": "Automatic renewal",
-    "patterns": ["auto(matic(ally)?)?[- ]?renew", "renew(s|ed)? automatically", "successive (renewal )?(term|period)s?", "evergreen"],
+    "id": "renewal_rent_hike",
+    "name": "Renewal and rent / fee escalation",
+    "patterns": ["auto(matic(ally)?)?[- ]?renew", "renew", "escalat", "increase(d)? by", "successive (term|period)s?"],
     "severity": "medium",
-    "why": "You can be locked into another full term (and price increases) if you miss a narrow cancellation window.",
-    "fair_standard": "Renewal only on affirmative opt-in, or month-to-month after the initial term, with a reminder at least 30 days before renewal and cancellation at any time with 30 days' notice."
+    "why": "Renewal that only one side controls, or open-ended increases, can force you to move or pay much more at short notice.",
+    "fair_standard": "Renewal by mutual written consent, with the yearly increase fixed up front. In Indian rentals a 5% to 10% annual increase is typical, and the Model Tenancy Act 2021 expects rent revisions to follow the agreement or come with 3 months' written notice."
   },
   {
     "id": "unilateral_changes",
     "name": "One-sided right to change terms",
-    "patterns": ["(may|reserves? the right to) (modify|amend|change|update) (these|this|the) (terms|agreement)", "sole discretion", "without (prior )?notice"],
+    "patterns": ["(may|reserves? the right to) (revise|modify|amend|change|update)", "sole discretion", "as (the owner|the company|the client) may decide", "without (prior )?notice", "continued .{0,40}(acceptance|accept)"],
     "severity": "high",
-    "why": "The other party can change price, scope or rules after you sign, so the deal you agreed to is not the deal you get.",
-    "fair_standard": "Material changes require at least 30 days' written notice and give you the right to terminate without penalty and receive a pro-rated refund."
+    "why": "The other party can change price, scope or rules after you sign. A WhatsApp message or intranet post is not real consent.",
+    "fair_standard": "Changes only by a written amendment signed by both parties. Under the Indian Contract Act 1872 a contract needs mutual consent, so 'continued stay or work means acceptance' clauses are weak."
   },
   {
-    "id": "arbitration_class_waiver",
-    "name": "Forced arbitration / class-action waiver",
-    "patterns": ["arbitrat", "class action", "class[- ]wide", "waive.{0,40}(jury|class)", "jury trial"],
+    "id": "arbitration_unilateral",
+    "name": "One-sided arbitration",
+    "patterns": ["arbitrat", "arbitrator"],
     "severity": "high",
-    "why": "You give up the right to go to court or join with others; arbitration can be costly, private and favour repeat players.",
-    "fair_standard": "Small-claims court carve-out, opt-out window of 30+ days, the drafting party pays arbitration fees, and a neutral venue near you."
+    "why": "If the other side alone picks the arbitrator, sets a far-away seat or makes you pay the fees, the dispute process is stacked against you.",
+    "fair_standard": "Arbitrator chosen jointly, or by an arbitral institution or court, with costs shared and the seat where you live or work. Indian courts have held that a party interested in the dispute cannot unilaterally appoint a sole arbitrator (Perkins Eastman v. HSCC, Supreme Court 2019, reaffirmed by a Constitution Bench in 2024). For small rental disputes, the Rent Authority or Civil Court is usually cheaper."
   },
   {
     "id": "limitation_of_liability",
     "name": "Liability cap or waiver",
-    "patterns": ["limitation of liability", "in no event shall", "not (be )?(liable|responsible)", "aggregate liability", "as[- ]is", "consequential damages"],
+    "patterns": ["limitation of liability", "in no event shall", "not (be )?(liable|responsible)", "aggregate liability", "exceeding rs"],
     "severity": "medium",
-    "why": "If the other party causes you harm, your recovery may be capped at a trivial amount or excluded entirely.",
-    "fair_standard": "Mutual caps of at least 12 months of fees, with carve-outs for gross negligence, wilful misconduct, data breaches and personal injury."
+    "why": "If the other party causes you harm or doesn't pay, what you can recover may be capped at a token amount.",
+    "fair_standard": "A mutual cap of at least the full contract value, with no cap on unpaid fees or on fraud, gross negligence, wilful misconduct or data breaches."
   },
   {
     "id": "indemnification",
     "name": "One-way indemnity",
-    "patterns": ["indemnif", "hold harmless", "defend.{0,30}against"],
+    "patterns": ["indemnif", "hold harmless", "keep .{0,20}harmless"],
     "severity": "high",
-    "why": "You may have to pay the other party's legal costs and damages, even for problems you did not cause.",
-    "fair_standard": "Mutual indemnities limited to each party's own negligence or breach, capped, and with control of the defence."
+    "why": "You may have to pay the other party's losses and legal costs, even for problems they caused, such as building defects or content they supplied.",
+    "fair_standard": "Mutual indemnities, each limited to that party's own breach or negligence and capped. Never an indemnity for the other party's own defects or instructions."
   },
   {
-    "id": "early_termination",
-    "name": "Termination penalties or one-sided termination",
-    "patterns": ["early termination", "termination fee", "liquidated damages", "terminate.{0,40}(any time|any reason|for convenience)", "remaining (balance|rent|payments)", "accelerat"],
+    "id": "lock_in_forfeiture",
+    "name": "Lock-in, forfeiture and one-sided termination",
+    "patterns": ["lock[- ]?in", "forfeit", "terminate .{0,40}(at any time|for convenience|any reason)", "without notice or pay", "liquidated damages"],
     "severity": "high",
-    "why": "Leaving early could cost you all remaining payments, while the other side may be able to walk away freely.",
-    "fair_standard": "Termination rights on both sides, a capped fee (for example one month), and a duty on the other party to mitigate losses."
+    "why": "Leaving early could cost you your whole deposit or a large penalty, while the other side can exit freely.",
+    "fair_standard": "A lock-in that binds both sides equally, and leaving early costs at most the rent or fee for the remaining lock-in or notice period. Under Section 74 of the Indian Contract Act 1872, courts award only reasonable compensation, not a fixed penalty out of proportion to the actual loss."
   },
   {
     "id": "fees_penalties",
     "name": "Late fees, penalties and hidden charges",
-    "patterns": ["late (fee|charge|payment)", "per day", "penalt", "administrative fee", "processing fee", "interest at", "non[- ]refundable"],
+    "patterns": ["penalty", "per day", "late (fee|charge|payment)", "processing fee", "per unit", "irrespective of", "non[- ]refundable", "in addition to"],
     "severity": "medium",
-    "why": "Fees that compound or are not tied to real costs can quickly exceed the underlying amount owed.",
-    "fair_standard": "A grace period of at least 5 days, a single fixed late fee no higher than about 5% of the payment, and all fees listed up front."
+    "why": "Daily penalties and inflated utility rates quickly exceed what you actually owe.",
+    "fair_standard": "A grace period (rent is commonly due by the 5th to 10th), a modest fixed late fee or interest, and electricity billed at the actual DISCOM tariff (e.g. BESCOM, MSEDCL) shown on the bill, without a markup."
   },
   {
     "id": "deposit",
     "name": "Security deposit terms",
-    "patterns": ["security deposit", "deposit (shall|will) be", "forfeit", "deduct.{0,40}deposit"],
-    "severity": "medium",
-    "why": "Vague deduction rules or long return windows make it easy to keep your deposit.",
-    "fair_standard": "Return within the legal deadline (often 14 to 30 days) with an itemised list of deductions; normal wear and tear is never deductible."
+    "patterns": ["security deposit", "deposit", "painting charges", "deduct"],
+    "severity": "high",
+    "why": "Very large deposits and vague or automatic deductions make it easy to keep your money.",
+    "fair_standard": "The Model Tenancy Act 2021 caps residential deposits at 2 months' rent (6 months for commercial), refundable when you hand over the premises. Deductions only for actual damage beyond normal wear and tear, with receipts. The Act is a model law adopted by only some states, and Bengaluru often asks for more, but it is a strong negotiating benchmark."
+  },
+  {
+    "id": "essential_services",
+    "name": "Cutting utilities or locking you out",
+    "patterns": ["disconnect", "cut (off )?(the )?(electricity|water|power)", "lock the premises", "lock(ed)? out", "withhold .{0,30}(supply|electricity|water)"],
+    "severity": "high",
+    "why": "Self-help eviction or cutting water or electricity to force payment is coercive and unlawful in most states.",
+    "fair_standard": "The Model Tenancy Act 2021 and state rent control laws prohibit a landlord from withholding essential supplies such as water and electricity. Arrears must be recovered through the Rent Authority or the courts."
   },
   {
     "id": "entry_privacy",
-    "name": "Entry, access and monitoring",
-    "patterns": ["enter the (premises|unit|property)", "access the (premises|unit)", "at any time", "monitor", "inspect"],
+    "name": "Entry, inspection and monitoring",
+    "patterns": ["enter (and inspect )?the premises", "inspect", "at any time, with or without notice", "monitor"],
     "severity": "medium",
-    "why": "Broad access rights erode your privacy and quiet enjoyment.",
-    "fair_standard": "At least 24 hours' written notice, reasonable hours, and stated purposes only, except in genuine emergencies."
-  },
-  {
-    "id": "ip_assignment",
-    "name": "Broad IP / content ownership grab",
-    "patterns": ["assign.{0,40}(intellectual property|all right, title)", "work made for hire", "perpetual", "irrevocable", "royalty[- ]free", "worldwide license"],
-    "severity": "high",
-    "why": "You may hand over ownership of, or unlimited rights to, your work, content or side projects.",
-    "fair_standard": "Licence only what is needed to provide the service, revocable on termination; in employment, exclude prior inventions and work done on your own time and equipment."
-  },
-  {
-    "id": "non_compete",
-    "name": "Non-compete / non-solicit",
-    "patterns": ["non[- ]?compet", "shall not.{0,60}(compet|solicit|engage)", "restrictive covenant", "non[- ]?solicit"],
-    "severity": "high",
-    "why": "This can stop you working in your field or region for a long time after the relationship ends.",
-    "fair_standard": "Narrow scope and geography, 6 to 12 months at most, paid garden leave, and only where enforceable under local law."
-  },
-  {
-    "id": "data_sharing",
-    "name": "Personal data use and sharing",
-    "patterns": ["personal (data|information)", "third[- ]part(y|ies).{0,40}(share|sell|disclose)", "(share|sell|disclose).{0,40}third[- ]part", "marketing purposes", "affiliates"],
-    "severity": "medium",
-    "why": "Your data might be sold or shared for purposes unrelated to the service.",
-    "fair_standard": "Use limited to providing the service, no sale of data, an opt-out for marketing, and deletion on request."
-  },
-  {
-    "id": "governing_law_venue",
-    "name": "Distant venue / governing law",
-    "patterns": ["governing law", "governed by the laws", "exclusive jurisdiction", "venue"],
-    "severity": "low",
-    "why": "Disputes may have to be fought far away under unfamiliar law, which makes enforcing your rights impractical.",
-    "fair_standard": "Your local law and courts, or at least a neutral venue."
+    "why": "Broad access or monitoring rights erode your privacy.",
+    "fair_standard": "The Model Tenancy Act 2021 requires at least 24 hours' written notice, with visits between 7 am and 8 pm. In employment, monitoring should be limited to company systems and disclosed in writing, not your personal devices or accounts."
   },
   {
     "id": "maintenance_repairs",
     "name": "Repair and maintenance burden",
-    "patterns": ["repair", "maintenance", "tenant shall (be responsible|pay) for", "at tenant'?s (sole )?(cost|expense)"],
+    "patterns": ["repair", "structural", "seepage", "waterproof", "at the tenant'?s own cost"],
     "severity": "medium",
-    "why": "Shifting structural or appliance repairs onto you makes you pay for the owner's property.",
-    "fair_standard": "The owner handles structural, plumbing, electrical, heating and appliance repairs; you pay only for damage beyond normal wear and tear."
+    "why": "Making the tenant pay for structural, seepage or wiring work means paying to maintain the owner's property.",
+    "fair_standard": "Under the Model Tenancy Act 2021 the landlord handles structural repairs, whitewashing, plumbing and wiring replacement, and the tenant handles minor day-to-day repairs (switches, taps) and damage they cause."
+  },
+  {
+    "id": "stamp_registration",
+    "name": "Stamp duty and registration",
+    "patterns": ["stamp duty", "registration", "registered", "notar"],
+    "severity": "low",
+    "why": "Paying every cost alone is unusual, and an unregistered or under-stamped agreement is harder to rely on as evidence.",
+    "fair_standard": "Stamp duty and registration costs are commonly shared equally. Leases of 12 months or more must be registered under the Registration Act 1908, and the Model Tenancy Act expects tenancies to be reported to the Rent Authority. Ensure correct state stamp duty is paid."
+  },
+  {
+    "id": "personal_restrictions",
+    "name": "Lifestyle and personal restrictions",
+    "patterns": ["non[- ]?vegetarian", "bachelor", "guests?", "visitors?", "overnight", "pets"],
+    "severity": "low",
+    "why": "Blanket rules on food, guests or who you live with limit your normal use of your home.",
+    "fair_standard": "House rules should be reasonable, written and agreed before you sign. Blanket bans on food, visitors or family members are negotiable and may be unenforceable or discriminatory."
+  },
+  {
+    "id": "employment_bond",
+    "name": "Service bond and retained documents",
+    "patterns": ["bond", "minimum period", "original (educational )?certificates", "recoverable", "liquidated damages"],
+    "severity": "high",
+    "why": "A large fixed bond or holding your original certificates can trap you in a job.",
+    "fair_standard": "Indian courts generally enforce bonds only to recover actual, proven training costs as reasonable compensation (s.74 Indian Contract Act), reduced pro rata for time served. Employers should not keep your original certificates; offer attested copies instead."
+  },
+  {
+    "id": "notice_period",
+    "name": "Unequal or very long notice period",
+    "patterns": ["notice period", "days'? notice", "months'? (written )?notice", "in lieu", "buyout"],
+    "severity": "medium",
+    "why": "Long notice for you but short notice for them restricts your job moves while leaving you unprotected.",
+    "fair_standard": "Equal notice on both sides. 30 to 60 days is common outside senior roles, with an option to buy out notice and to adjust earned leave against it."
+  },
+  {
+    "id": "wages_deductions",
+    "name": "Pay, deductions and unpaid work",
+    "patterns": ["deduct .{0,40}(salary|settlement|fee|payment)", "withhold (any )?payment", "variable pay", "without overtime", "compensatory off", "unlimited revisions", "lapse"],
+    "severity": "high",
+    "why": "Open-ended deductions, discretionary pay or unpaid extra work cut into what you actually earn.",
+    "fair_standard": "Only deductions permitted by law or specifically agreed in writing (Code on Wages 2019), variable pay with written criteria, overtime or comp-off for extra days as required by the Shops and Establishments Act, and paid change requests beyond a fixed number of revisions."
+  },
+  {
+    "id": "payment_terms",
+    "name": "Slow or conditional payment (freelance)",
+    "patterns": ["within .{0,20}days after", "net \\d+", "no advance", "final approval", "tds", "inclusive of gst"],
+    "severity": "high",
+    "why": "Long payment cycles, no advance and approval-based payment let the client delay or avoid paying.",
+    "fair_standard": "An advance of 30% to 50%, milestone payments within 30 to 45 days of invoice (the MSMED Act 2006 requires payment to registered micro and small enterprises within 45 days, so get Udyam registration), GST charged on top of the fee, and TDS deducted only as per law with Form 16A issued."
+  },
+  {
+    "id": "ip_assignment",
+    "name": "Broad IP ownership grab",
+    "patterns": ["assign .{0,40}rights", "exclusive property", "whether or not", "pre-existing", "before joining", "moral rights"],
+    "severity": "high",
+    "why": "You may hand over your past work, personal projects or reusable tools, sometimes before you are even paid.",
+    "fair_standard": "Assign only work created for the job or project, passing on full payment. Exclude prior inventions, personal projects on your own time and equipment, and your pre-existing tools (license those instead). Keep the right to show the work in your portfolio."
+  },
+  {
+    "id": "non_compete",
+    "name": "Post-exit non-compete / exclusivity",
+    "patterns": ["non[- ]?compete", "competitor", "shall not .{0,60}(employment|services|compet)", "exclusiv"],
+    "severity": "high",
+    "why": "This can stop you working in your field for years after the job or project ends.",
+    "fair_standard": "Section 27 of the Indian Contract Act 1872 makes post-termination restraints on trade generally void, and courts routinely refuse to enforce them. Restrictions during the engagement, confidentiality, and reasonable non-solicitation of clients and staff are usually upheld."
+  },
+  {
+    "id": "data_privacy",
+    "name": "Personal data use and sharing",
+    "patterns": ["personal data", "aadhaar", "pan details", "third part(y|ies)", "affiliates", "social media"],
+    "severity": "high",
+    "why": "Your Aadhaar, PAN and personal accounts could be shared or monitored far beyond what the job needs.",
+    "fair_standard": "Under the Digital Personal Data Protection Act 2023, personal data may be processed only for a specified purpose with consent. You can withdraw consent and ask for erasure, and Aadhaar should be collected only where legally required."
+  },
+  {
+    "id": "transfer_relocation",
+    "name": "Unlimited transfer / relocation",
+    "patterns": ["transfer", "relocat", "any office", "abroad"],
+    "severity": "medium",
+    "why": "A clause allowing transfer anywhere can be used to force a resignation.",
+    "fair_standard": "Transfers limited to named cities, with your consent for overseas postings, and relocation costs paid by the employer."
+  },
+  {
+    "id": "governing_law_venue",
+    "name": "Distant seat or jurisdiction",
+    "patterns": ["jurisdiction", "seat of arbitration", "governed by the laws"],
+    "severity": "low",
+    "why": "Disputes heard in another city make it costly and impractical to enforce your rights.",
+    "fair_standard": "Courts or seat in the city where you live or where the property or work is located."
   }
 ]

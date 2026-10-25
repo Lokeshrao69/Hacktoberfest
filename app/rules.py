@@ -1,5 +1,6 @@
 """Rulebook: curated red-flag categories that ground the model's judgement."""
 import json
+import os
 import re
 from pathlib import Path
 
@@ -27,6 +28,18 @@ def lookup(topic: str):
             scored.append((overlap, r))
     scored.sort(key=lambda x: -x[0])
     return [r for _, r in scored[:2]]
+
+
+INDIA_NOTE = """Jurisdiction: INDIA. The signer is in India; money is in Indian Rupees (write amounts as ₹ with Indian grouping, e.g. ₹3,20,000; 1 lakh = ₹1,00,000, 1 crore = ₹1,00,00,000; "Rs." means ₹).
+Judge clauses against Indian law and market practice, for example: Model Tenancy Act 2021 (deposit cap 2 months residential, 24h entry notice, no cutting essential supplies, landlord does structural repairs), Indian Contract Act 1872 (s.27 post-exit non-competes generally void; s.74 only reasonable compensation, not penalties), Arbitration and Conciliation Act 1996 (no unilateral appointment of a sole arbitrator by an interested party), Registration Act 1908 (leases of 12+ months must be registered), Code on Wages 2019, Shops and Establishments Acts, DPDP Act 2023, Consumer Protection Act 2019, MSMED Act 2006 (45-day payment to registered MSEs).
+Name the relevant Indian law briefly in plain_english when it matters, and say when a clause is likely unenforceable. Note when a model law (like the Model Tenancy Act) applies only in states that adopted it."""
+
+
+def region_note():
+    region = os.getenv("CONTRACT_REGION", "India").strip()
+    if region.lower() in ("india", "in"):
+        return INDIA_NOTE
+    return f"Jurisdiction: {region}. Judge clauses against the law and market practice of {region}."
 
 
 def catalog_text():

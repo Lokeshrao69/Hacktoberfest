@@ -11,6 +11,7 @@ from . import rules
 from .llm import LLMError, extract_json
 
 MAX_STEPS = 6
+LANGUAGES = ("English", "Hindi", "Tamil", "Telugu", "Kannada", "Marathi", "Bengali", "Malayalam", "Gujarati")
 
 SYSTEM = """You are ClauseGuard, an assistant that answers questions about ONE contract for the person who has to sign it.
 You cannot see the contract directly; use tools to read it. Every turn, reply with exactly ONE JSON object and nothing else:
@@ -30,7 +31,10 @@ Rules:
 - Always refer to clauses by their id (C7), never as "Clause 7" or by the section number printed in the text; they differ.
 - Quote exact numbers, dates and amounts. If the contract does not say, say so.
 - When useful, propose concrete wording the signer could ask for.
-- Keep the answer under 200 words. You are not a lawyer; for high-stakes situations suggest a professional.
+- Keep the answer under 200 words. You are not a lawyer; for high-stakes situations suggest a lawyer or free legal aid (your District Legal Services Authority / NALSA, helpline 15100).
+
+{region}
+Write the final answer in {language}; keep clause ids like [C7], numbers and ₹ amounts unchanged.
 Document: {doc_type}, {n} clauses ({first}..{last})."""
 
 
@@ -119,12 +123,14 @@ class Agent:
             return f"Bad input for {action}: {e}"
 
     # ---- loop ----
-    def run(self, question, history=None):
+    def run(self, question, history=None, language="English"):
         clauses = self.doc["clauses"]
         system = SYSTEM.format(
             doc_type=self.doc.get("summary", {}).get("doc_type", "contract"),
             n=len(clauses), first=clauses[0]["id"] if clauses else "C1",
             last=clauses[-1]["id"] if clauses else "C1",
+            region=rules.region_note(),
+            language=language if language in LANGUAGES else "English",
         )
         messages = [{"role": "system", "content": system}]
         for turn in (history or [])[-6:]:

@@ -13,24 +13,26 @@ RISK_POINTS = {"high": 18, "medium": 8, "low": 2}
 SCAN_SYSTEM = """You are ClauseGuard, a careful contract reviewer protecting the person who has to SIGN this document (tenant, customer, employee, freelancer).
 Review each clause and report ONLY clauses that are unfavourable, unusual or risky for the signer. Skip boilerplate that is fair.
 
+{region}
+
 Rulebook categories (use the id as "category"; use "other" if none fit):
 {catalog}
 
 Return ONLY JSON in this shape:
 {{"findings": [
   {{"clause_id": "C3",
-    "category": "auto_renewal",
+    "category": "deposit",
     "risk": "high" | "medium" | "low",
     "title": "short headline, max 8 words",
     "evidence": "EXACT words copied from the clause (max 30 words)",
     "plain_english": "what this means for the signer, 1-2 sentences, no legalese",
     "suggested_revision": "fairer replacement wording the signer could propose"}}
 ]}}
-Rules: clause_id must be one of the ids given. evidence must be copied verbatim. Be specific with numbers, dates and amounts."""
+Rules: clause_id must be one of the ids given. evidence must be copied verbatim from the clause (keep "Rs." etc. exactly as written). Be specific with numbers, dates and amounts."""
 
 SUMMARY_SYSTEM = """You summarise contracts for the person who has to sign them. Return ONLY JSON:
-{"doc_type": "e.g. Residential lease", "parties": ["..."], "summary": "2-3 plain-English sentences",
- "key_terms": [{"name": "e.g. Monthly rent", "value": "e.g. $2,100", "clause_id": "C2"}],
+{"doc_type": "e.g. Residential rental agreement", "parties": ["..."], "summary": "2-3 plain-English sentences",
+ "key_terms": [{"name": "e.g. Monthly rent", "value": "e.g. ₹32,000 per month", "clause_id": "C2"}],
  "questions_to_ask": ["3 short questions the signer should ask before signing"]}
 Include up to 8 key terms (money, dates, durations, notice periods). Only use clause ids that appear in the text."""
 
@@ -89,7 +91,7 @@ def _scan_batch(llm, batch):
         hint = ", ".join(c["flags"]) or "none"
         parts.append(f"[{c['id']}] (rulebook hints: {hint})\n{c['text']}")
     messages = [
-        {"role": "system", "content": SCAN_SYSTEM.format(catalog=rules.catalog_text())},
+        {"role": "system", "content": SCAN_SYSTEM.format(catalog=rules.catalog_text(), region=rules.region_note())},
         {"role": "user", "content": "Clauses to review:\n\n" + "\n\n---\n\n".join(parts)},
     ]
     data = llm.chat_json(messages)
@@ -167,7 +169,9 @@ def scan(clauses, llm):
         text = "\n\n".join(f"[{c['id']}] {c['text']}" for c in clauses)[:14000]
         try:
             s = llm.chat_json([
-                {"role": "system", "content": SUMMARY_SYSTEM},
+                {"role": "system", "content": SUMMARY_SYSTEM + "
+
+" + rules.region_note()},
                 {"role": "user", "content": text},
             ])
             return s if isinstance(s, dict) else {}
