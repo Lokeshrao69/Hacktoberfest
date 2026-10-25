@@ -318,7 +318,8 @@ $("#askForm").onsubmit = async e => {
   $("#askBtn").disabled = true;
   try {
     const r = await api("/api/ask", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ doc_id: state.doc.doc_id, question: q, history: state.history }) });
+      body: JSON.stringify({ doc_id: state.doc.doc_id, question: q, history: state.history,
+        doc: { clauses: state.doc.clauses, findings: state.doc.findings, summary: state.doc.summary || {} } }) });
     wait.remove();
     const steps = r.trace.filter(t => t.action && t.action !== "final");
     const trace = steps.length ? `<details class="trace"><summary>Agent trace · ${steps.length} tool call${steps.length > 1 ? "s" : ""}</summary><ol>${

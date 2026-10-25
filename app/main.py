@@ -31,11 +31,33 @@ class AnalyzeIn(BaseModel):
     text: str = Field(min_length=50, max_length=MAX_CHARS)
 
 
+class DocIn(BaseModel):
+    clauses: list = Field(max_length=2000)
+    findings: list = []
+    summary: dict = {}
+
+
 class AskIn(BaseModel):
     doc_id: str
     question: str = Field(min_length=2, max_length=2000)
     history: list = []
     language: str = "English"
+    # On serverless hosts (Vercel) the next request may hit a fresh instance
+    # without the in-memory cache, so the browser sends the analysed doc back.
+    doc: DocIn | None = None
+
+
+def _doc_from_client(d: DocIn):
+    clauses = [{"id": str(c["id"]), "title": str(c.get("title", "")), "text": str(c["text"])[:MAX_CHARS]}
+               for c in d.clauses if isinstance(c, dict) and c.get("id") and c.get("text")]
+    if not clauses:
+        return None
+    ids = {c["id"] for c in clauses}
+    findings = [f for f in d.findings if isinstance(f, dict) and f.get("clause_id") in ids
+                and f.get("risk") in ("high", "medium", "low")]
+    for f in findings:
+        f.setdefault("title", ""), f.setdefault("plain_english", "")
+    return {"clauses": clauses, "index": BM25(clauses), "findings": findings, "summary": d.summary}
 
 
 @app.get("/api/health")
@@ -96,9 +118,12 @@ def analyze(inp: AnalyzeIn):
 @app.post("/api/ask")
 def ask(inp: AskIn):
     doc = DOCS.get(inp.doc_id)
+    if doc:
+        DOCS.move_to_end(inp.doc_id)
+    elif inp.doc:
+        doc = _doc_from_client(inp.doc)
     if not doc:
         raise HTTPException(404, "Document expired, please analyse it again.")
-    DOCS.move_to_end(inp.doc_id)
     try:
         return Agent(llm, doc).run(inp.question, inp.history, inp.language)
     except LLMError as e:

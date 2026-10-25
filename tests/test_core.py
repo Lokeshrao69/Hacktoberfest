@@ -164,6 +164,13 @@ class TestAPI(unittest.TestCase):
         a = c.post("/api/ask", json={"doc_id": r["doc_id"], "question": "rent?"}).json()
         self.assertEqual(a["citations"], ["C3"])
         self.assertEqual(c.post("/api/ask", json={"doc_id": "nope", "question": "rent?"}).status_code, 404)
+        # Serverless: a fresh instance has no cache, so the client re-sends the analysed doc.
+        main.DOCS.clear()
+        main.llm = FakeLLM(replies=[json.dumps({"action": "get_clause", "input": {"id": "C3"}}),
+                                    json.dumps({"final": "Rent is ₹32,000 [C3]."})])
+        a = c.post("/api/ask", json={"doc_id": r["doc_id"], "question": "rent?",
+                                     "doc": {"clauses": r["clauses"], "findings": r["findings"], "summary": r["summary"]}}).json()
+        self.assertEqual((a["citations"], a["unverified_citations"]), (["C3"], []))
         self.assertEqual(c.post("/api/extract", content=b"plain text body").json()["text"], "plain text body")
 
 
