@@ -169,9 +169,7 @@ def scan(clauses, llm):
         text = "\n\n".join(f"[{c['id']}] {c['text']}" for c in clauses)[:14000]
         try:
             s = llm.chat_json([
-                {"role": "system", "content": SUMMARY_SYSTEM + "
-
-" + rules.region_note()},
+                {"role": "system", "content": SUMMARY_SYSTEM + "\n\n" + rules.region_note()},
                 {"role": "user", "content": text},
             ])
             return s if isinstance(s, dict) else {}

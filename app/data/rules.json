@@ -58,7 +58,7 @@
   {
     "id": "deposit",
     "name": "Security deposit terms",
-    "patterns": ["security deposit", "deposit", "painting charges", "deduct"],
+    "patterns": ["security deposit", "deposit", "painting charges"],
     "severity": "high",
     "why": "Very large deposits and vague or automatic deductions make it easy to keep your money.",
     "fair_standard": "The Model Tenancy Act 2021 caps residential deposits at 2 months' rent (6 months for commercial), refundable when you hand over the premises. Deductions only for actual damage beyond normal wear and tear, with receipts. The Act is a model law adopted by only some states, and Bengaluru often asks for more, but it is a strong negotiating benchmark."
@@ -162,7 +162,7 @@
   {
     "id": "transfer_relocation",
     "name": "Unlimited transfer / relocation",
-    "patterns": ["transfer", "relocat", "any office", "abroad"],
+    "patterns": ["transferred to", "relocat", "any office", "abroad"],
     "severity": "medium",
     "why": "A clause allowing transfer anywhere can be used to force a resignation.",
     "fair_standard": "Transfers limited to named cities, with your consent for overseas postings, and relocation costs paid by the employer."
