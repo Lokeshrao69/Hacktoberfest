@@ -1,11 +1,11 @@
 ---
 name: clauseguard
-description: Review a contract, lease, offer letter, freelance agreement or terms of service for clauses that are risky for the signer, using an open-weight model on DigitalOcean. Use when the user asks "is this contract fair", "what should I watch out for before signing", or asks a question about a specific agreement file.
+description: Review an Indian rental agreement, offer letter, freelance agreement or terms of service for clauses that are risky for the signer, using an open-weight model on DigitalOcean. Use when the user asks "is this contract fair", "what should I watch out for before signing", or asks a question about a specific agreement file.
 ---
 
 # ClauseGuard skill
 
-ClauseGuard segments a contract into clauses (C1, C2, …), checks them against a rulebook of 14 red-flag categories, has an open-weight LLM review each clause, verifies every quoted piece of evidence against the source, and answers questions with clause citations.
+ClauseGuard segments a contract into clauses (C1, C2, …), checks them against a rulebook of 22 red-flag categories grounded in Indian law (Model Tenancy Act, Indian Contract Act s.27/s.74, Arbitration Act, DPDP Act, Code on Wages, MSMED Act), has an open-weight LLM review each clause, verifies every quoted piece of evidence against the source, and answers questions with clause citations.
 
 ## Setup (once)
 
@@ -20,7 +20,8 @@ export MODEL_ACCESS_KEY=...          # DigitalOcean Gradient model access key
 ## Use
 
 - Full risk report as markdown: `python -m app.cli path/to/contract.pdf`
-- A specific question: `python -m app.cli path/to/contract.txt --ask "What happens if I move out early?"`
+- A specific question: `python -m app.cli path/to/contract.txt --ask "How much of my deposit will I get back?"`
+- Answer in an Indian language: add `--lang Hindi` (also Tamil, Telugu, Kannada, Marathi, Bengali, Malayalam, Gujarati)
 - Structured output for further processing: add `--json`
 
 ## How to present results

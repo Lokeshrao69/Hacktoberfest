@@ -112,7 +112,7 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:24px 16px}
 <main>
   <section id="inputView" class="intro">
     <h1>Read the fine print before you sign.</h1>
-    <p class="lead">Paste a lease, freelance contract, job offer or terms of service. An open-weight model on DigitalOcean flags the risky clauses, explains them in plain English, drafts fairer wording, and answers your questions with citations to the exact clause.</p>
+    <p class="lead">Paste a rental agreement, offer letter, freelance contract or terms of service. An open-weight model on DigitalOcean flags the risky clauses, explains them in plain English, drafts fairer wording, and answers your questions with citations to the exact clause.</p>
     <div class="card input-card">
       <textarea id="docText" placeholder="Paste contract text here…"></textarea>
       <div class="row">
@@ -125,7 +125,7 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:24px 16px}
     </div>
     <div class="pipeline">
       <div class="card"><b>1 · Segment</b>Splits the document into numbered clauses the agent can cite.</div>
-      <div class="card"><b>2 · Rulebook prior</b>14 curated red-flag patterns give the model a starting point.</div>
+      <div class="card"><b>2 · Rulebook prior</b>22 red-flag categories based on Indian law give the model a starting point.</div>
       <div class="card"><b>3 · Open-weight review</b>The model judges each clause and drafts fairer wording.</div>
       <div class="card"><b>4 · Verify</b>Every quote is checked against the source and every citation against what the agent read.</div>
     </div>
@@ -161,7 +161,7 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:24px 16px}
           <div class="msgs" id="msgs"></div>
           <div class="suggest" id="suggest"></div>
           <form class="ask" id="askForm">
-            <input id="q" placeholder="e.g. What happens if I move out early?" autocomplete="off">
+            <input id="q" placeholder="e.g. How much of my deposit will I get back?" autocomplete="off">
             <button class="btn primary" id="askBtn">Ask</button>
           </form>
         </div>
@@ -279,7 +279,10 @@ function render() {
 
   $("#msgs").innerHTML = "";
   addMsg("bot", `I've read all ${d.clauses.length} clauses. Ask me anything about this contract and I'll cite the exact clause.`);
-  const sugg = ["What happens if I leave early?", "Which clause should I negotiate first?", "Can they change the terms after I sign?", "What fees could I be charged?"];
+  const dt = (s.doc_type || "").toLowerCase();
+  const sugg = /rent|lease|tenan|licen/.test(dt) ? ["How much of my deposit will I get back?", "What if I vacate before the lock-in ends?", "Can the owner cut electricity or lock me out?", "Which clause should I negotiate first?"]
+    : /employ|offer|job/.test(dt) ? ["Do I have to pay the bond if I quit early?", "Can they stop me joining a competitor?", "Is the 90-day notice period fair?", "Which clause should I negotiate first?"]
+    : ["When and how will I get paid?", "Who owns my work?", "Can they change the terms after I sign?", "Which clause should I negotiate first?"];
   $("#suggest").innerHTML = sugg.map(q => `<button class="btn">${esc(q)}</button>`).join("");
   $("#suggest").onclick = e => { if (e.target.tagName === "BUTTON") { $("#q").value = e.target.textContent; $("#askForm").requestSubmit(); } };
 }

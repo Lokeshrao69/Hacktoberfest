@@ -1,6 +1,6 @@
 # ClauseGuard 🛡️
 
-**Read the fine print before you sign.** ClauseGuard is an AI agent that reviews leases, freelance contracts, job offers and terms of service *for the person signing them*. It flags risky clauses, explains them in plain English, drafts fairer wording to negotiate with, and answers questions about the contract with citations to the exact clause.
+**Read the fine print before you sign.** ClauseGuard is an AI agent that reviews **Indian** rental agreements, offer letters, freelance contracts and terms of service *for the person signing them*, judging them against Indian law and market practice in ₹. It flags risky clauses, explains them in plain English, drafts fairer wording to negotiate with, and answers questions about the contract with citations to the exact clause.
 
 It runs on **open-weight models** (default: `openai-gpt-oss-120b`) served by **DigitalOcean Serverless Inference**. The same code runs on a self-hosted model on a DigitalOcean GPU Droplet.
 
@@ -12,7 +12,7 @@ Most people sign contracts they can't fully parse: 90-day auto-renewal windows, 
 
 ```
  contract ─► 1. Segment ─► 2. Rulebook prior ─► 3. Open-weight LLM review ─► 4. Verify ─► report
-             C1..Cn        14 red-flag            per-clause JSON findings      quotes checked
+             C1..Cn        22 red-flag            per-clause JSON findings      quotes checked
              clauses       categories (regex)     + plain English + revision    against source
                                                                                     │
  question ─► Agent harness (JSON action protocol) ── tools: search_clauses (BM25),  │
@@ -35,7 +35,7 @@ Most people sign contracts they can't fully parse: 90-day auto-renewal windows, 
 | Surface | Command |
 |---|---|
 | Web app | `uvicorn app.main:app` → http://localhost:8000 |
-| CLI | `python -m app.cli samples/apartment_lease.txt` / `--ask "Can I sublet?"` / `--json` |
+| CLI | `python -m app.cli samples/rental_agreement_bengaluru.txt` / `--ask "Can I sublet?"` / `--lang Hindi` / `--json` |
 | Agent skill | `skill/SKILL.md` lets coding agents (Claude Code, etc.) call ClauseGuard as a skill |
 
 ## Run locally
@@ -80,7 +80,7 @@ Ollama works too: `LLM_BASE_URL=http://<host>:11434/v1`.
 app/
   llm.py        OpenAI-compatible client + tolerant JSON extraction
   segment.py    clause segmentation (numbered / ALL-CAPS headings, paragraph fallback)
-  rules.py      rulebook loader + pattern matching   (data/rules.json: 14 categories)
+  rules.py      rulebook loader + pattern matching   (data/rules.json: 22 categories, Indian law)
   scanner.py    batched LLM review, validation, evidence verification, scoring
   search.py     dependency-free BM25 over clauses
   agent.py      JSON-protocol agent harness with 4 tools + citation checks
@@ -94,9 +94,9 @@ tests/              unit + end-to-end tests with a fake model
 
 ## Demo script (2 minutes)
 
-1. Click **apartment lease**, then **Analyse contract**. The risk score appears, and the HIGH findings show the 90-day auto-renewal, "all remaining rent due" and landlord-picked arbitration.
+1. Click **rental agreement bengaluru**, then **Analyse contract**. The risk score appears, and the HIGH findings show the ₹3,20,000 (10-month) deposit against the Model Tenancy Act's 2-month cap, the threat to cut electricity and water, and the owner-appointed arbitrator.
 2. Click a finding to jump to the highlighted clause. Point out the "✓ quote verified in source" badge.
-3. Ask *"What happens if I move out early?"* Expand **Agent trace** to show the `search_clauses` → `get_clause` tool calls, then click the `[C11]` citation.
+3. Ask *"If I leave after 6 months, how much of my deposit do I get back?"* Expand **Agent trace** to show the tool calls, then click the `[C6]` citation. Ask the same question in Hindi or Tamil.
 4. Open **Ask before signing** for the negotiation checklist.
 
 *ClauseGuard provides information, not legal advice.*

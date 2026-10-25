@@ -149,7 +149,7 @@
     "patterns": ["non[- ]?compete", "competitor", "shall not .{0,60}(employment|services|compet)", "exclusiv"],
     "severity": "high",
     "why": "This can stop you working in your field for years after the job or project ends.",
-    "fair_standard": "Section 27 of the Indian Contract Act 1872 makes post-termination restraints on trade generally void, and courts routinely refuse to enforce them. Restrictions during the engagement, confidentiality, and reasonable non-solicitation of clients and staff are usually upheld."
+    "fair_standard": "Section 27 of the Indian Contract Act 1872 makes post-termination restraints on trade void, however 'reasonable' the duration or area (unlike English law); the narrow statutory exception is sale of goodwill. Restrictions during the engagement, confidentiality, and reasonable non-solicitation of clients and staff are usually upheld."
   },
   {
     "id": "data_privacy",
