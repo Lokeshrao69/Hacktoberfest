@@ -54,6 +54,13 @@ class TestSegmentAndSearch(unittest.TestCase):
         cs = segment("First paragraph is long enough to be a clause on its own.\n\nSecond paragraph is also long enough to count here.")
         self.assertEqual([c["id"] for c in cs], ["C1", "C2"])
 
+    def test_section_and_article_headings(self):
+        t = ("Section 1 Definitions\nWords mean things here and that is all there is to say.\n"
+             "Section 2 Payment\nYou pay us the amount listed every month on the first day.\n"
+             "Article III Termination\nEither party may end this with thirty days written notice.")
+        self.assertEqual([c["title"] for c in segment(t)],
+                         ["Section 1 Definitions", "Section 2 Payment", "Article III Termination"])
+
     def test_bm25(self):
         cs = segment(LEASE)
         top = BM25(cs).search("security deposit returned", k=1)[0][0]
@@ -81,6 +88,12 @@ class TestScanner(unittest.TestCase):
         self.assertEqual(r["summary"]["key_terms"][1]["clause_id"], None)
         self.assertFalse(r["degraded"])
 
+    def test_key_term_ref_repaired(self):
+        # Model cites section number 10 as C10 (pets) instead of C11 (early termination).
+        summary = {"key_terms": [{"name": "Early termination fee", "value": "all remaining rent plus two months' rent", "clause_id": "C10"}]}
+        r = scan(segment(LEASE), FakeLLM(summary_reply=summary))
+        self.assertEqual(r["summary"]["key_terms"][0]["clause_id"], "C11")
+
     def test_scan_falls_back_to_rulebook(self):
         r = scan(segment(LEASE), FakeLLM(fail=True))
         self.assertTrue(r["degraded"])
@@ -106,6 +119,21 @@ class TestAgent(unittest.TestCase):
         self.assertEqual(r["citations"], ["C2", "C11", "C99"])
         self.assertIn("C99", r["unverified_citations"])
         self.assertNotIn("C11", r["unverified_citations"])
+
+    def test_malformed_json_never_shown_raw(self):
+        llm = FakeLLM(replies=[
+            json.dumps({"action": "list_findings", "input": {}}),
+            '{"thought": "the whole answer stuffed in here and then truncated',     # no final -> retry
+            '{"thought": "ok", "final": "Negotiate the non-compete first [C8]. Ask for 6 months',  # truncated
+        ])
+        r = Agent(llm, self.doc()).run("what first?")
+        self.assertEqual(r["answer"], "Negotiate the non-compete first [C8]. Ask for 6 months")
+        self.assertFalse(r["answer"].startswith("{"))
+
+    def test_normalize_citations(self):
+        from app.agent import normalize_citations
+        self.assertEqual(normalize_citations("fee【C10】 and 【C11†L3】, [C2, C5], (C7), Clause C8, [C3], bare C4. ABC12"),
+                         "fee[C10] and [C11], [C2] [C5], [C7], [C8], [C3], bare [C4]. ABC12")
 
     def test_bad_tool_and_step_budget(self):
         llm = FakeLLM(replies=[json.dumps({"action": "delete_everything", "input": {}})] * 6 + ["Final prose answer."])

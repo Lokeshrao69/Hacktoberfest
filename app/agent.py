@@ -15,6 +15,7 @@ MAX_STEPS = 6
 SYSTEM = """You are ClauseGuard, an assistant that answers questions about ONE contract for the person who has to sign it.
 You cannot see the contract directly; use tools to read it. Every turn, reply with exactly ONE JSON object and nothing else:
 
+"thought" is ONE short sentence; the full answer goes only in "final".
 To use a tool:  {{"thought": "why", "action": "<tool>", "input": {{...}}}}
 To answer:      {{"thought": "why", "final": "your answer in markdown"}}
 
@@ -25,11 +26,38 @@ Tools:
 - lookup_rule     input {{"topic": "auto renewal"}}        -> what is fair/standard for a topic
 
 Rules:
-- Read the relevant clauses before answering. Cite clauses inline like [C7]; only cite clauses you have read.
+- Read the relevant clauses before answering. Cite clauses inline in square brackets like [C7]; only cite clauses you have read.
+- Always refer to clauses by their id (C7), never as "Clause 7" or by the section number printed in the text; they differ.
 - Quote exact numbers, dates and amounts. If the contract does not say, say so.
 - When useful, propose concrete wording the signer could ask for.
 - Keep the answer under 200 words. You are not a lawyer; for high-stakes situations suggest a professional.
 Document: {doc_type}, {n} clauses ({first}..{last})."""
+
+
+def normalize_citations(text: str) -> str:
+    """Rewrite model citation styles (【C3】, (C3), clause C3, [C3, C5]) as [C3]."""
+    text = re.sub(r"【\s*(C\d+)[^】]*】", r"[\1]", text)
+    text = re.sub(r"\[(C\d+(?:\s*[,;]\s*C\d+)+)\]",
+                  lambda m: " ".join(f"[{c.strip()}]" for c in re.split(r"[,;]", m.group(1))), text)
+    text = re.sub(r"\((C\d+)\)", r"[\1]", text)
+    text = re.sub(r"\b(?:clause|section)\s+(C\d+)\b", r"[\1]", text, flags=re.I)
+    text = re.sub(r"(?<![\[\w])(C\d+)(?![\]\w])", r"[\1]", text)  # bare C3
+    return text
+
+
+_FINAL = re.compile(r'"final"\s*:\s*"((?:[^"\\]|\\.)*)', re.S)
+
+
+def salvage_final(reply: str):
+    """Recover the "final" string from malformed or truncated JSON."""
+    m = _FINAL.search(reply or "")
+    if not m or len(m.group(1)) < 20:
+        return None
+    raw = m.group(1).rstrip("\\")
+    try:
+        return json.loads(f'"{raw}"')
+    except json.JSONDecodeError:
+        return raw.replace("\\n", "\n").replace('\\"', '"')
 
 
 class Agent:
@@ -106,14 +134,20 @@ class Agent:
 
         trace, answer = [], None
         for step in range(MAX_STEPS):
-            reply = self.llm.chat(messages, temperature=0.1, max_tokens=2048)
+            reply = self.llm.chat(messages, temperature=0.1, max_tokens=4096)
             obj = extract_json(reply)
             if not isinstance(obj, dict):
-                if reply.strip() and step > 0:
+                salvaged = salvage_final(reply)
+                if salvaged:
+                    answer = salvaged  # broken/truncated JSON, but the answer field survived
+                    trace.append({"thought": "(repaired malformed JSON reply)", "action": "final"})
+                    break
+                looks_like_json = reply.lstrip().startswith(("{", "```"))
+                if reply.strip() and step > 0 and not looks_like_json:
                     answer = reply.strip()  # model answered in prose; accept it
                     break
-                messages += [{"role": "assistant", "content": reply},
-                             {"role": "user", "content": "Reply with ONE JSON object as instructed."}]
+                messages += [{"role": "assistant", "content": reply[:1500]},
+                             {"role": "user", "content": 'That was not one valid JSON object. Reply again with ONE short JSON object: a one-sentence "thought" plus either "action"/"input" or "final".'}]
                 trace.append({"thought": "(unparseable reply, asked to retry)"})
                 continue
             if "final" in obj:
@@ -134,6 +168,7 @@ class Agent:
             except LLMError:
                 answer = "I ran out of steps before finishing. Try a more specific question."
 
+        answer = normalize_citations(answer)
         cited = sorted(set(re.findall(r"\[(C\d+)\]", answer)), key=lambda x: int(x[1:]))
         unverified = [c for c in cited if c not in self.seen or c not in self.by_id]
         return {"answer": answer, "trace": trace, "citations": cited, "unverified_citations": unverified}

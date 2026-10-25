@@ -4,7 +4,7 @@ import re
 _NUMBERED = re.compile(
     r"^\s*(\d+(\.\d+)*[.)]\s+\S"           # 1. Title / 3) Title
     r"|\d+(\.\d+)+\s+\S"                    # 1.2 Title
-    r"|(section|article|clause)\s+[\dIVXLC]+)",  # Section 4 / Article IV
+    r"|(section|article|clause)\s+[\dIVXLC]+\b)",  # Section 4 / Article IV
     re.I,
 )
 _ALLCAPS = re.compile(r"^[A-Z][A-Z0-9 ,&/\-]{3,60}:?$")

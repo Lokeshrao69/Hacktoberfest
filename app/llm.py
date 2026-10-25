@@ -21,7 +21,8 @@ class LLMError(RuntimeError):
 def load_dotenv(path):
     """Read KEY=VALUE lines into os.environ without overriding real env vars."""
     try:
-        lines = open(path, encoding="utf-8").read().splitlines()
+        with open(path, encoding="utf-8") as f:
+            lines = f.read().splitlines()
     except OSError:
         return
     for line in lines:
