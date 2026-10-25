@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ClauseGuard</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M16 2 4 7v8c0 7.5 5 13 12 15 7-2 12-7.5 12-15V7z' fill='%230069ff'/><path d='m10 16 4 4 8-8' stroke='white' stroke-width='3' fill='none'/></svg>">
+<style>
+:root{
+  --bg:#f6f7fb; --panel:#fff; --ink:#151a2d; --muted:#5f6680; --line:#e3e6ef;
+  --accent:#0069ff; --accent-ink:#fff; --high:#d92d20; --high-bg:#fdecea; --med:#b54708; --med-bg:#fef4e6;
+  --low:#3e7b27; --low-bg:#edf7e7; --chip:#eef2ff; --code:#f1f3f8; --shadow:0 1px 2px rgba(16,24,40,.06),0 4px 16px rgba(16,24,40,.05);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0e1220; --panel:#161b2e; --ink:#e8ebf5; --muted:#9aa1b9; --line:#262d45;
+  --accent:#4d8dff; --accent-ink:#fff; --high:#ff6b5e; --high-bg:#3a1714; --med:#f5a524; --med-bg:#35260f;
+  --low:#7cc45a; --low-bg:#1a2c14; --chip:#1f2745; --code:#1d2338; --shadow:none;
+}}
+:root[data-theme="dark"]{
+  --bg:#0e1220; --panel:#161b2e; --ink:#e8ebf5; --muted:#9aa1b9; --line:#262d45;
+  --accent:#4d8dff; --accent-ink:#fff; --high:#ff6b5e; --high-bg:#3a1714; --med:#f5a524; --med-bg:#35260f;
+  --low:#7cc45a; --low-bg:#1a2c14; --chip:#1f2745; --code:#1d2338; --shadow:none;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button,textarea,input{font:inherit;color:inherit}
+header{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:5}
+.logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:18px}
+.badge{font-size:12px;color:var(--muted);border:1px solid var(--line);padding:2px 8px;border-radius:99px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:50vw}
+.spacer{flex:1}
+.btn{border:1px solid var(--line);background:var(--panel);padding:8px 14px;border-radius:8px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.btn:disabled{opacity:.55;cursor:wait}
+main{max-width:1280px;margin:0 auto;padding:20px 16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
+.intro{max-width:820px;margin:24px auto}
+.intro h1{font-size:28px;margin:0 0 6px}
+.intro p.lead{color:var(--muted);margin:0 0 18px}
+.input-card{padding:16px}
+textarea{width:100%;min-height:300px;border:1px solid var(--line);border-radius:8px;padding:12px;background:var(--bg);resize:vertical}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.pipeline{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
+.pipeline div{padding:12px;font-size:13px}
+.pipeline b{display:block;font-size:14px;margin-bottom:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:16px;align-items:start}
+.sticky{position:sticky;top:76px}
+.summary{padding:18px;display:flex;gap:18px;align-items:center}
+.gauge{flex:none;width:96px;height:96px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:26px}
+.gauge span{display:block;font-size:11px;font-weight:500;color:var(--muted);text-align:center}
+.terms{display:flex;flex-wrap:wrap;gap:8px;padding:0 18px 16px}
+.term{background:var(--chip);border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer}
+.term b{display:block;font-size:11px;color:var(--muted);font-weight:500}
+.tabs{display:flex;gap:4px;margin:16px 0 10px}
+.tab{padding:6px 12px;border-radius:8px;border:1px solid transparent;cursor:pointer;background:none}
+.tab.on{background:var(--panel);border-color:var(--line);font-weight:600}
+.finding{padding:14px 16px;margin-bottom:10px;border-left:4px solid var(--line);cursor:pointer}
+.finding.high{border-left-color:var(--high)} .finding.medium{border-left-color:var(--med)} .finding.low{border-left-color:var(--low)}
+.finding h3{margin:0;font-size:15px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pill{font-size:11px;font-weight:700;text-transform:uppercase;padding:2px 8px;border-radius:99px;letter-spacing:.03em}
+.pill.high{background:var(--high-bg);color:var(--high)} .pill.medium{background:var(--med-bg);color:var(--med)} .pill.low{background:var(--low-bg);color:var(--low)}
+.cid{font:12px ui-monospace,Consolas,monospace;background:var(--chip);padding:1px 6px;border-radius:5px;cursor:pointer;color:var(--accent);border:none}
+.finding p{margin:6px 0 0}
+blockquote{margin:8px 0 0;padding:6px 10px;border-left:3px solid var(--line);color:var(--muted);font-size:13px}
+.verify{font-size:12px} .verify.ok{color:var(--low)} .verify.no{color:var(--med)}
+.revision{margin-top:8px;background:var(--code);border-radius:8px;padding:8px 10px;font-size:13px}
+.revision b{font-size:12px;color:var(--muted)}
+.clause{padding:12px 14px;border-bottom:1px solid var(--line);white-space:pre-wrap;scroll-margin-top:90px}
+.clause:last-child{border-bottom:none}
+.clause.high{background:var(--high-bg)} .clause.medium{background:var(--med-bg)}
+.clause.flash{outline:2px solid var(--accent);outline-offset:-2px}
+.chat{display:flex;flex-direction:column;height:calc(100vh - 100px);min-height:480px}
+.chat-head{padding:12px 16px;border-bottom:1px solid var(--line)}
+.msgs{flex:1;overflow:auto;padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.msg{max-width:92%;padding:10px 12px;border-radius:12px}
+.msg.user{align-self:flex-end;background:var(--accent);color:var(--accent-ink)}
+.msg.bot{align-self:flex-start;background:var(--bg);border:1px solid var(--line)}
+.msg.bot p{margin:0 0 6px} .msg.bot ul{margin:4px 0;padding-left:18px}
+.msg code{background:var(--code);padding:0 4px;border-radius:4px}
+details.trace{margin-top:8px;font-size:12px;color:var(--muted)}
+details.trace li{margin:4px 0}
+.suggest{display:flex;gap:6px;flex-wrap:wrap;padding:0 16px 10px}
+.suggest button{font-size:12px;padding:4px 10px;border-radius:99px}
+form.ask{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--line)}
+form.ask input{flex:1;min-width:0;border:1px solid var(--line);border-radius:8px;padding:9px 12px;background:var(--bg)}
+.notice{padding:10px 14px;border-radius:8px;background:var(--med-bg);color:var(--med);margin-bottom:12px;font-size:13px}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:s 1s linear infinite;vertical-align:-2px}
+@keyframes s{to{transform:rotate(360deg)}}
+.hidden{display:none!important}
+footer{color:var(--muted);font-size:12px;text-align:center;padding:24px 16px}
+@media (max-width:900px){
+  .grid{grid-template-columns:1fr} .sticky{position:static} .chat{height:70vh}
+  .pipeline{grid-template-columns:1fr 1fr}
+}
+@media (max-width:520px){ .summary{flex-direction:column;align-items:flex-start} .badge{display:none} }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <svg width="22" height="22" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 4 7v8c0 7.5 5 13 12 15 7-2 12-7.5 12-15V7z" fill="var(--accent)"/><path d="m10 16 4 4 8-8" stroke="#fff" stroke-width="3" fill="none"/></svg>
+    ClauseGuard
+  </div>
+  <span class="badge" id="model">connecting…</span>
+  <div class="spacer"></div>
+  <button class="btn hidden" id="newBtn">New document</button>
+  <button class="btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+</header>
+
+<main>
+  <section id="inputView" class="intro">
+    <h1>Read the fine print before you sign.</h1>
+    <p class="lead">Paste a lease, freelance contract, job offer or terms of service. An open-weight model on DigitalOcean flags the risky clauses, explains them in plain English, drafts fairer wording, and answers your questions with citations to the exact clause.</p>
+    <div class="card input-card">
+      <textarea id="docText" placeholder="Paste contract text here…"></textarea>
+      <div class="row">
+        <button class="btn primary" id="analyzeBtn">Analyse contract</button>
+        <label class="btn">Upload .txt / .pdf<input type="file" id="file" accept=".txt,.md,.pdf" hidden></label>
+        <span class="muted small">Or try a sample:</span>
+        <span id="samples" class="row" style="margin:0"></span>
+      </div>
+      <div id="status" class="muted small" style="margin-top:10px"></div>
+    </div>
+    <div class="pipeline">
+      <div class="card"><b>1 · Segment</b>Splits the document into numbered clauses the agent can cite.</div>
+      <div class="card"><b>2 · Rulebook prior</b>14 curated red-flag patterns give the model a starting point.</div>
+      <div class="card"><b>3 · Open-weight review</b>The model judges each clause and drafts fairer wording.</div>
+      <div class="card"><b>4 · Verify</b>Every quote is checked against the source and every citation against what the agent read.</div>
+    </div>
+  </section>
+
+  <section id="resultView" class="hidden">
+    <div class="grid">
+      <div>
+        <div id="degraded" class="notice hidden"></div>
+        <div class="card">
+          <div class="summary">
+            <div class="gauge" id="gauge"></div>
+            <div>
+              <div class="muted small" id="docType"></div>
+              <div id="docSummary"></div>
+              <div class="muted small" id="meta" style="margin-top:6px"></div>
+            </div>
+          </div>
+          <div class="terms" id="terms"></div>
+        </div>
+        <div class="tabs" role="tablist">
+          <button class="tab on" data-tab="risks">Risks <span id="riskCount"></span></button>
+          <button class="tab" data-tab="doc">Document</button>
+          <button class="tab" data-tab="questions">Ask before signing</button>
+        </div>
+        <div id="tab-risks"></div>
+        <div id="tab-doc" class="card hidden"></div>
+        <div id="tab-questions" class="card hidden" style="padding:14px 18px"></div>
+      </div>
+      <div class="sticky">
+        <div class="card chat">
+          <div class="chat-head"><b>Ask the contract</b><div class="muted small">Agent with search, read and rulebook tools. Answers cite clauses.</div></div>
+          <div class="msgs" id="msgs"></div>
+          <div class="suggest" id="suggest"></div>
+          <form class="ask" id="askForm">
+            <input id="q" placeholder="e.g. What happens if I move out early?" autocomplete="off">
+            <button class="btn primary" id="askBtn">Ask</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>ClauseGuard gives you information, not legal advice. Powered by open-weight models on DigitalOcean.</footer>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let state = { doc: null, history: [] };
+
+// theme
+try { const t = localStorage.getItem("cg-theme"); if (t) document.documentElement.dataset.theme = t; } catch {}
+$("#themeBtn").onclick = () => {
+  const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+  const cur = document.documentElement.dataset.theme || (dark ? "dark" : "light");
+  const next = cur === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = next;
+  try { localStorage.setItem("cg-theme", next); } catch {}
+};
+
+async function api(path, opts = {}) {
+  const r = await fetch(path, opts);
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.detail ? (typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail)) : `HTTP ${r.status}`);
+  return data;
+}
+
+fetch("/api/health").then(r => r.json()).then(h => {
+  $("#model").textContent = (h.configured ? "● " : "○ not configured · ") + h.model;
+}).catch(() => $("#model").textContent = "offline");
+
+api("/api/samples").then(list => {
+  $("#samples").innerHTML = list.map(s => `<button class="btn small" data-s="${esc(s.name)}">${esc(s.name.replace(/_/g, " "))}</button>`).join("");
+  $("#samples").onclick = async e => {
+    const n = e.target.dataset.s; if (!n) return;
+    $("#docText").value = (await api(`/api/samples/${n}`)).text;
+  };
+});
+
+$("#file").onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  $("#status").textContent = "Reading file…";
+  try {
+    const { text } = await api("/api/extract", { method: "POST", body: f });
+    $("#docText").value = text; $("#status").textContent = `Loaded ${f.name}`;
+  } catch (err) { $("#status").textContent = "Could not read file: " + err.message; }
+};
+
+$("#analyzeBtn").onclick = async () => {
+  const text = $("#docText").value.trim();
+  if (text.length < 50) { $("#status").textContent = "Paste at least a few clauses first."; return; }
+  const btn = $("#analyzeBtn"); btn.disabled = true;
+  const steps = ["Splitting into clauses…", "Checking rulebook patterns…", "Open-weight model reviewing clauses…", "Verifying quotes against the source…"];
+  let i = 0; $("#status").innerHTML = `<span class="spin"></span> ${steps[0]}`;
+  const timer = setInterval(() => { i = Math.min(i + 1, steps.length - 1); $("#status").innerHTML = `<span class="spin"></span> ${steps[i]}`; }, 2500);
+  try {
+    state.doc = await api("/api/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text }) });
+    state.history = [];
+    render();
+  } catch (err) { $("#status").textContent = "Error: " + err.message; }
+  finally { clearInterval(timer); btn.disabled = false; }
+};
+
+$("#newBtn").onclick = () => { $("#resultView").classList.add("hidden"); $("#inputView").classList.remove("hidden"); $("#newBtn").classList.add("hidden"); $("#status").textContent = ""; };
+
+document.querySelectorAll(".tab").forEach(t => t.onclick = () => showTab(t.dataset.tab));
+function showTab(name) {
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("on", t.dataset.tab === name));
+  ["risks", "doc", "questions"].forEach(n => $("#tab-" + n).classList.toggle("hidden", n !== name));
+}
+
+function jumpTo(cid) {
+  showTab("doc");
+  const el = document.getElementById("clause-" + cid); if (!el) return;
+  el.scrollIntoView({ behavior: "smooth", block: "center" });
+  el.classList.add("flash"); setTimeout(() => el.classList.remove("flash"), 1600);
+}
+document.addEventListener("click", e => { const c = e.target.closest("[data-cid]"); if (c) { e.stopPropagation(); jumpTo(c.dataset.cid); } });
+
+function render() {
+  const d = state.doc, s = d.summary || {};
+  $("#inputView").classList.add("hidden"); $("#resultView").classList.remove("hidden"); $("#newBtn").classList.remove("hidden");
+  const sc = d.risk_score, col = sc >= 60 ? "var(--high)" : sc >= 30 ? "var(--med)" : "var(--low)";
+  $("#gauge").style.background = `conic-gradient(${col} ${sc * 3.6}deg, var(--line) 0)`;
+  $("#gauge").innerHTML = `<div style="background:var(--panel);width:76px;height:76px;border-radius:50%;display:grid;place-items:center"><div>${sc}<span>risk</span></div></div>`;
+  $("#docType").textContent = [s.doc_type, (s.parties || []).join(" · ")].filter(Boolean).join(" — ");
+  $("#docSummary").textContent = s.summary || "Summary unavailable.";
+  const counts = { high: 0, medium: 0, low: 0 }; d.findings.forEach(f => counts[f.risk]++);
+  $("#meta").textContent = `${d.clauses.length} clauses · ${counts.high} high · ${counts.medium} medium · ${counts.low} low · ${d.model} · ${d.seconds}s`;
+  $("#terms").innerHTML = (s.key_terms || []).map(k => `<div class="term" ${k.clause_id ? `data-cid="${esc(k.clause_id)}"` : ""}><b>${esc(k.name)}</b>${esc(k.value)}</div>`).join("");
+  $("#riskCount").textContent = `(${d.findings.length})`;
+  const deg = $("#degraded");
+  deg.classList.toggle("hidden", !d.degraded);
+  deg.textContent = d.degraded ? "Some parts of the model review failed, so those clauses show rulebook-only findings. Try again for a full review." : "";
+
+  const worst = {};
+  const rank = { high: 3, medium: 2, low: 1 };
+  d.findings.forEach(f => { if ((rank[f.risk] || 0) > (rank[worst[f.clause_id]] || 0)) worst[f.clause_id] = f.risk; });
+
+  $("#tab-risks").innerHTML = d.findings.length ? d.findings.map(f => `
+    <div class="card finding ${f.risk}" data-cid="${esc(f.clause_id)}">
+      <h3><span class="pill ${f.risk}">${f.risk}</span>${esc(f.title)} <button class="cid" data-cid="${esc(f.clause_id)}">${esc(f.clause_id)}</button></h3>
+      <p>${esc(f.plain_english)}</p>
+      ${f.evidence ? `<blockquote>“${esc(f.evidence)}”<br><span class="verify ${f.verified ? "ok" : "no"}">${f.verified ? "✓ quote verified in source" : "⚠ quote not found verbatim, so check the clause"}</span></blockquote>` : `<div class="verify no small" style="margin-top:6px">Rulebook match (no model review)</div>`}
+      ${f.suggested_revision ? `<div class="revision"><b>Ask for instead</b><br>${esc(f.suggested_revision)}</div>` : ""}
+    </div>`).join("") : `<div class="card" style="padding:16px">No risky clauses found.</div>`;
+
+  $("#tab-doc").innerHTML = d.clauses.map(c => `<div class="clause ${worst[c.id] || ""}" id="clause-${c.id}"><button class="cid" tabindex="-1">${c.id}</button> ${esc(c.text)}</div>`).join("");
+  $("#tab-questions").innerHTML = (s.questions_to_ask || []).length ? `<ol>${s.questions_to_ask.map(q => `<li>${esc(q)}</li>`).join("")}</ol>` : `<p class="muted">No questions generated.</p>`;
+  showTab("risks");
+
+  $("#msgs").innerHTML = "";
+  addMsg("bot", `I've read all ${d.clauses.length} clauses. Ask me anything about this contract and I'll cite the exact clause.`);
+  const sugg = ["What happens if I leave early?", "Which clause should I negotiate first?", "Can they change the terms after I sign?", "What fees could I be charged?"];
+  $("#suggest").innerHTML = sugg.map(q => `<button class="btn">${esc(q)}</button>`).join("");
+  $("#suggest").onclick = e => { if (e.target.tagName === "BUTTON") { $("#q").value = e.target.textContent; $("#askForm").requestSubmit(); } };
+}
+
+function md(text) {
+  let h = esc(text);
+  h = h.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/`([^`]+)`/g, "<code>$1</code>");
+  h = h.replace(/\[(C\d+)\]/g, '<button class="cid" data-cid="$1">$1</button>');
+  const lines = h.split(/\n/), out = []; let list = false;
+  for (const l of lines) {
+    const m = l.match(/^\s*([-*]|\d+\.)\s+(.*)/);
+    if (m) { if (!list) { out.push("<ul>"); list = true; } out.push(`<li>${m[2]}</li>`); }
+    else { if (list) { out.push("</ul>"); list = false; } if (l.trim()) out.push(`<p>${l.replace(/^#+\s*/, "")}</p>`); }
+  }
+  if (list) out.push("</ul>");
+  return out.join("");
+}
+
+function addMsg(role, text, extra = "") {
+  const el = document.createElement("div");
+  el.className = "msg " + role;
+  el.innerHTML = role === "user" ? esc(text) : md(text) + extra;
+  $("#msgs").appendChild(el); $("#msgs").scrollTop = $("#msgs").scrollHeight;
+  return el;
+}
+
+$("#askForm").onsubmit = async e => {
+  e.preventDefault();
+  const q = $("#q").value.trim(); if (!q || !state.doc) return;
+  $("#q").value = ""; $("#suggest").innerHTML = "";
+  addMsg("user", q);
+  const wait = addMsg("bot", ""); wait.innerHTML = `<span class="spin"></span> <span class="muted small">thinking & reading clauses…</span>`;
+  $("#askBtn").disabled = true;
+  try {
+    const r = await api("/api/ask", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ doc_id: state.doc.doc_id, question: q, history: state.history }) });
+    wait.remove();
+    const steps = r.trace.filter(t => t.action && t.action !== "final");
+    const trace = steps.length ? `<details class="trace"><summary>Agent trace · ${steps.length} tool call${steps.length > 1 ? "s" : ""}</summary><ol>${
+      steps.map(t => `<li><code>${esc(t.action)}(${esc(JSON.stringify(t.input || {}))})</code>${t.thought ? `<br>${esc(t.thought)}` : ""}</li>`).join("")}</ol></details>` : "";
+    const warn = r.unverified_citations.length ? `<div class="verify no">⚠ Cited without reading: ${r.unverified_citations.join(", ")}</div>` : "";
+    addMsg("bot", r.answer, warn + trace);
+    state.history.push({ role: "user", content: q }, { role: "assistant", content: r.answer });
+  } catch (err) { wait.remove(); addMsg("bot", "Error: " + err.message); }
+  finally { $("#askBtn").disabled = false; }
+};
+</script>
+</body>
+</html>

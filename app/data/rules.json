@@ -1,0 +1,114 @@
+[
+  {
+    "id": "auto_renewal",
+    "name": "Automatic renewal",
+    "patterns": ["auto(matic(ally)?)?[- ]?renew", "renew(s|ed)? automatically", "successive (renewal )?(term|period)s?", "evergreen"],
+    "severity": "medium",
+    "why": "You can be locked into another full term (and price increases) if you miss a narrow cancellation window.",
+    "fair_standard": "Renewal only on affirmative opt-in, or month-to-month after the initial term, with a reminder at least 30 days before renewal and cancellation at any time with 30 days' notice."
+  },
+  {
+    "id": "unilateral_changes",
+    "name": "One-sided right to change terms",
+    "patterns": ["(may|reserves? the right to) (modify|amend|change|update) (these|this|the) (terms|agreement)", "sole discretion", "without (prior )?notice"],
+    "severity": "high",
+    "why": "The other party can change price, scope or rules after you sign, so the deal you agreed to is not the deal you get.",
+    "fair_standard": "Material changes require at least 30 days' written notice and give you the right to terminate without penalty and receive a pro-rated refund."
+  },
+  {
+    "id": "arbitration_class_waiver",
+    "name": "Forced arbitration / class-action waiver",
+    "patterns": ["arbitrat", "class action", "class[- ]wide", "waive.{0,40}(jury|class)", "jury trial"],
+    "severity": "high",
+    "why": "You give up the right to go to court or join with others; arbitration can be costly, private and favour repeat players.",
+    "fair_standard": "Small-claims court carve-out, opt-out window of 30+ days, the drafting party pays arbitration fees, and a neutral venue near you."
+  },
+  {
+    "id": "limitation_of_liability",
+    "name": "Liability cap or waiver",
+    "patterns": ["limitation of liability", "in no event shall", "not (be )?(liable|responsible)", "aggregate liability", "as[- ]is", "consequential damages"],
+    "severity": "medium",
+    "why": "If the other party causes you harm, your recovery may be capped at a trivial amount or excluded entirely.",
+    "fair_standard": "Mutual caps of at least 12 months of fees, with carve-outs for gross negligence, wilful misconduct, data breaches and personal injury."
+  },
+  {
+    "id": "indemnification",
+    "name": "One-way indemnity",
+    "patterns": ["indemnif", "hold harmless", "defend.{0,30}against"],
+    "severity": "high",
+    "why": "You may have to pay the other party's legal costs and damages, even for problems you did not cause.",
+    "fair_standard": "Mutual indemnities limited to each party's own negligence or breach, capped, and with control of the defence."
+  },
+  {
+    "id": "early_termination",
+    "name": "Termination penalties or one-sided termination",
+    "patterns": ["early termination", "termination fee", "liquidated damages", "terminate.{0,40}(any time|any reason|for convenience)", "remaining (balance|rent|payments)", "accelerat"],
+    "severity": "high",
+    "why": "Leaving early could cost you all remaining payments, while the other side may be able to walk away freely.",
+    "fair_standard": "Termination rights on both sides, a capped fee (for example one month), and a duty on the other party to mitigate losses."
+  },
+  {
+    "id": "fees_penalties",
+    "name": "Late fees, penalties and hidden charges",
+    "patterns": ["late (fee|charge|payment)", "per day", "penalt", "administrative fee", "processing fee", "interest at", "non[- ]refundable"],
+    "severity": "medium",
+    "why": "Fees that compound or are not tied to real costs can quickly exceed the underlying amount owed.",
+    "fair_standard": "A grace period of at least 5 days, a single fixed late fee no higher than about 5% of the payment, and all fees listed up front."
+  },
+  {
+    "id": "deposit",
+    "name": "Security deposit terms",
+    "patterns": ["security deposit", "deposit (shall|will) be", "forfeit", "deduct.{0,40}deposit"],
+    "severity": "medium",
+    "why": "Vague deduction rules or long return windows make it easy to keep your deposit.",
+    "fair_standard": "Return within the legal deadline (often 14 to 30 days) with an itemised list of deductions; normal wear and tear is never deductible."
+  },
+  {
+    "id": "entry_privacy",
+    "name": "Entry, access and monitoring",
+    "patterns": ["enter the (premises|unit|property)", "access the (premises|unit)", "at any time", "monitor", "inspect"],
+    "severity": "medium",
+    "why": "Broad access rights erode your privacy and quiet enjoyment.",
+    "fair_standard": "At least 24 hours' written notice, reasonable hours, and stated purposes only, except in genuine emergencies."
+  },
+  {
+    "id": "ip_assignment",
+    "name": "Broad IP / content ownership grab",
+    "patterns": ["assign.{0,40}(intellectual property|all right, title)", "work made for hire", "perpetual", "irrevocable", "royalty[- ]free", "worldwide license"],
+    "severity": "high",
+    "why": "You may hand over ownership of, or unlimited rights to, your work, content or side projects.",
+    "fair_standard": "Licence only what is needed to provide the service, revocable on termination; in employment, exclude prior inventions and work done on your own time and equipment."
+  },
+  {
+    "id": "non_compete",
+    "name": "Non-compete / non-solicit",
+    "patterns": ["non[- ]?compet", "shall not.{0,60}(compet|solicit|engage)", "restrictive covenant", "non[- ]?solicit"],
+    "severity": "high",
+    "why": "This can stop you working in your field or region for a long time after the relationship ends.",
+    "fair_standard": "Narrow scope and geography, 6 to 12 months at most, paid garden leave, and only where enforceable under local law."
+  },
+  {
+    "id": "data_sharing",
+    "name": "Personal data use and sharing",
+    "patterns": ["personal (data|information)", "third[- ]part(y|ies).{0,40}(share|sell|disclose)", "(share|sell|disclose).{0,40}third[- ]part", "marketing purposes", "affiliates"],
+    "severity": "medium",
+    "why": "Your data might be sold or shared for purposes unrelated to the service.",
+    "fair_standard": "Use limited to providing the service, no sale of data, an opt-out for marketing, and deletion on request."
+  },
+  {
+    "id": "governing_law_venue",
+    "name": "Distant venue / governing law",
+    "patterns": ["governing law", "governed by the laws", "exclusive jurisdiction", "venue"],
+    "severity": "low",
+    "why": "Disputes may have to be fought far away under unfamiliar law, which makes enforcing your rights impractical.",
+    "fair_standard": "Your local law and courts, or at least a neutral venue."
+  },
+  {
+    "id": "maintenance_repairs",
+    "name": "Repair and maintenance burden",
+    "patterns": ["repair", "maintenance", "tenant shall (be responsible|pay) for", "at tenant'?s (sole )?(cost|expense)"],
+    "severity": "medium",
+    "why": "Shifting structural or appliance repairs onto you makes you pay for the owner's property.",
+    "fair_standard": "The owner handles structural, plumbing, electrical, heating and appliance repairs; you pay only for damage beyond normal wear and tear."
+  }
+]
